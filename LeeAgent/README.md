@@ -77,7 +77,11 @@ tests/                纯逻辑测试 + (可选)Nimble 联测
 
 ## 路线图
 
-- **Phase 0(当前)**: 种子记忆 + 热路径跑通,量出零训练基线(名次/成本/延迟)。
-- **Phase 1**: Nimble 判断校准(known-label 集合)与阈值扫描(`min_apply_prob` 等)。
-- **Phase 2**: 冷路径迭代:蒸馏 → 门 → 入库,观察记忆库增长与对局胜率的关系。
+当前状态:policy v16 前四率 64%(seeds 1200–1299,bot 参照 59%)。
+详细的 70%+ 演进路线(优先级/预期增益/把握度/已证伪方向)见
+[docs/LEEAGENT_ROADMAP.md](../docs/LEEAGENT_ROADMAP.md)。
+
+- **Phase 0(已完成)**: 种子记忆 + 热路径跑通,零训练基线。
+- **Phase 1(已完成)**: 校准驱动迁移 + 阈值训练,v16 达成前四 64%。
+- **Phase 2(当前)**: 冷路径迭代(蒸馏 → 门 → 入库)+ 路线图第一/二梯队。
 - 评测: TavernBench 桥接(states.jsonl.gz → 局面 → LeeAgent 决策 → 答案格式)。
