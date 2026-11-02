@@ -37,7 +37,21 @@ def matches(when: dict, facts: dict) -> bool:
         return False
     if "board_count_gte" in w and facts["board_count"] < w["board_count_gte"]:
         return False
+    if "board_count_lte" in w and facts["board_count"] > w["board_count_lte"]:
+        return False
     if "num_alive_lte" in w and facts["num_alive"] > w["num_alive_lte"]:
+        return False
+    if "win_streak_gte" in w and facts["win_streak"] < w["win_streak_gte"]:
+        return False
+    if w.get("hand_dup_in_shop") and not facts["hand_dup_in_shop"]:
+        return False
+    if w.get("opp_seen_more_minions") and not facts["opp_seen_more"]:
+        return False
+    if "opp_seen_keyword" in w and w["opp_seen_keyword"] not in facts["opp_seen_keywords"]:
+        return False
+    if w.get("board_text_has") and not any(
+            all(s.lower() in t.lower() for s in w["board_text_has"])
+            for t in facts["board_texts"]):
         return False
     for flag in ("hand_full", "board_full", "next_is_ghost"):
         if w.get(flag) is not None and bool(facts.get(flag)) != bool(w[flag]):
@@ -58,7 +72,9 @@ def specificity(when: dict) -> int:
     w = when or {}
     n = sum(1 for k in ("turn_min", "turn_max", "tier_min", "tier_max", "hp_below",
                         "hp_above", "gold_gte", "gold_lte", "board_count_gte",
-                        "num_alive_lte", "hand_full", "board_full", "next_is_ghost")
+                        "board_count_lte", "num_alive_lte", "win_streak_gte",
+                        "hand_dup_in_shop", "opp_seen_more_minions", "opp_seen_keyword",
+                        "hand_full", "board_full", "next_is_ghost")
             if w.get(k) is not None)
     n += sum(w.get("tribe_min", {}).values()) + sum(w.get("shop_tribe_min", {}).values())
     n += len(w.get("any_keyword") or [])

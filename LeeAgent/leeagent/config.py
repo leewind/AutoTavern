@@ -22,13 +22,15 @@ BENCH_ENV_FILE = Path.home() / ".tavernbench.env"
 
 DEFAULTS = {
     # hot path
-    "min_apply_prob": 0.6,     # noul probability for a memory to count as applicable
+    "min_apply_prob": 0.85,    # noul probability for a memory to count as applicable
+                               # (calibrated: 507 labeled judgments, acc-max at 0.9)
     "uncertain_band": 0.45,    # below min_apply but above this: "uncertain", logged
     "max_candidates": 16,      # slim candidates sent to Nimble (token budget)
     "max_questions": 8,        # parallel noul applicability questions per turn
     "ask_top_choice": True,    # one extra choice question for priority
     # lookahead
-    "fix_positioning": True,
+    "fix_positioning": False,  # OFF by default: ablated (dev +0.057, holdout +0.071),
+                               # it optimized against the opponent's stale scouted board
     "positioning_sims": 48,    # combats per candidate arrangement
     # gate / cold path
     "gate_n_games": 40,

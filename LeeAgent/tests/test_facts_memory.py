@@ -26,7 +26,10 @@ def _facts(**over):
          "hand_count": 2, "hand_limit": 10, "hand_full": False, "board_count": 7,
          "board_full": True, "shop_count": 6, "upgrade_price": 5, "tribes": {"BEAST": 3},
          "keywords": ["TAUNT"], "shop_tribes": {"BEAST": 2}, "num_alive": 6,
-         "next_is_ghost": False, "next_opponent": 1, "win_streak": 0, "pending": False}
+         "next_is_ghost": False, "next_opponent": 1, "win_streak": 0, "pending": False,
+         "hand_dup_in_shop": False, "board_texts": ["Deathrattle: summon two Whelps."],
+         "opp_seen_board": 4, "opp_seen_more": False,
+         "opp_seen_keywords": ["CLEAVE"]}
     f.update(over)
     return f
 
@@ -41,6 +44,18 @@ def test_when_matching_ranges_and_flags():
     assert not memory.matches({"tribe_min": {"BEAST": 5}}, _facts())
     assert memory.matches({"any_keyword": ["TAUNT", "CLEAVE"]}, _facts())
     assert not memory.matches({"any_keyword": ["WINDFURY"]}, _facts())
+    # the migrated code-exact vocabulary
+    assert memory.matches({"hand_dup_in_shop": True}, _facts(hand_dup_in_shop=True))
+    assert not memory.matches({"hand_dup_in_shop": True}, _facts())
+    assert memory.matches({"board_text_has": ["Deathrattle", "Summon"]}, _facts())
+    assert not memory.matches({"board_text_has": ["Avenge"]}, _facts())
+    assert memory.matches({"win_streak_gte": 2, "board_count_lte": 5},
+                          _facts(win_streak=3, board_count=4))
+    assert not memory.matches({"win_streak_gte": 2}, _facts(win_streak=1))
+    assert memory.matches({"opp_seen_more_minions": True}, _facts(opp_seen_more=True))
+    assert not memory.matches({"opp_seen_more_minions": True}, _facts())
+    assert memory.matches({"opp_seen_keyword": "CLEAVE"}, _facts())
+    assert not memory.matches({"opp_seen_keyword": "WINDFURY"}, _facts())
     assert memory.matches({}, _facts())
 
 
@@ -61,6 +76,9 @@ def test_seed_store_loads_and_validates():
     assert all(memory.validate(m) for m in store)
     ids = [m["id"] for m in store]
     assert len(set(ids)) == 24
+    # the six migrated memories are decided by code alone
+    exact = {m["id"] for m in store if m.get("code_exact")}
+    assert exact == {"M006", "M007", "M011", "M012", "M019", "M023"}
 
 
 def test_facts_from_a_real_game():

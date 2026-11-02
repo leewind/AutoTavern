@@ -1,12 +1,13 @@
 """Turn policy: score every legal action with transparent heuristics + memory biases.
 
 Actions are decoded from the flat index space by arithmetic
-(crates/taverngym/src/actions.rs layout), not by parsing names — names are
-Rust-Debug formatted and easy to mis-pattern-match.
+(crates/taverngym/src/actions.rs layout), not by parsing names.
 
-The Phase-0 baseline is deliberately simple and readable: the point is a
-measurable starting point the memory bank and the gate improve on. Every memory
-contribution records the memory id, so the game log shows why each action won.
+v2 (post Phase-1): the base heuristic was the measured bottleneck
+(code arm -0.42 vs bot -0.09). This version scores cards by quality
+(stat sum / tribe commitment), picks pending options by content, and adds
+spend discipline to Upgrade / HeroPower. Every memory contribution records
+the memory id, so the game log still shows why each action won.
 
 Bias vocabulary (what a memory's `bias` may ask the policy to do):
   prefer_buy_tribe: TRIBE        bonus for buying that tribe
@@ -72,26 +73,75 @@ def decode(i: int):
     return ("move", k // N_BOARD, k % N_BOARD)
 
 
-def choose_pending(legal: list[int]) -> int:
-    """Pending choice: deterministic middle option (Phase-0 placeholder)."""
+_PREMIUM_KW = {"DIVINE_SHIELD", "TAUNT", "REBORN", "WINDFURY", "VENOMOUS", "POISONOUS"}
+
+
+def card_quality(card: dict) -> float:
+    """Minion value on the scripted bot's proven scale: stats + 3*tier + keywords."""
+    if card.get("type") == "spell" or not card.get("tier"):
+        return float(2 + (card.get("tier") or 0))
+    v = float(card.get("atk", 0)) + float(card.get("hp", 0)) + 3.0 * card.get("tier", 0)
+    if card.get("golden"):
+        v += 6.0
+    v += 3.0 * len(_PREMIUM_KW & set(card.get("keywords") or []))
+    return v
+
+
+def choose_pending(legal: list[int], view: dict) -> int:
+    """Pending choice by content: cheap hero powers, strong discover options.
+
+    Hero: prefer the cheaper Hero Power (usable every turn), armor as tiebreak.
+    Discover / triple reward: highest stat sum, then tier; spells by tier.
+    Deterministic on ties (lowest option index).
+    """
     opts = sorted(i for i in legal if A_CHOOSE <= i < A_PLAY)
-    if opts:
+    if not opts:
+        return sorted(legal)[0]
+    pending = view["me"].get("pending") or {}
+    options = pending.get("options") or []
+    if not options:
         return opts[len(opts) // 2]
-    return sorted(legal)[0]
+    if pending.get("kind") == "hero":
+        def hero_score(o):
+            power = o.get("hero_power") or {}
+            return (-2.0 * (power.get("cost") or 0)
+                    + 0.1 * (o.get("armor") or 0))
+        best = max(range(len(options)), key=lambda k: (hero_score(options[k]), -k))
+        idx = A_CHOOSE + best
+        return idx if idx in opts else opts[0]
+
+    def opt_score(o):
+        if o.get("type") == "spell" or not o.get("tier"):
+            return float(2 + (o.get("tier") or 0))
+        return card_quality(o)
+
+    # only options with a legal Choose action are candidates (e.g. unaffordable
+    # trinkets are masked out), so score the legal indices directly
+    best_idx, best_s = opts[0], None
+    for idx in opts:
+        k = idx - A_CHOOSE
+        if 0 <= k < len(options):
+            s = opt_score(options[k])
+            if best_s is None or s > best_s:
+                best_idx, best_s = idx, s
+    return best_idx
 
 
-def score_actions(view: dict, matched: list, legal: list[int]) -> list:
-    """-> [(score, action_idx, label, why)], best first."""
+def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: int = 0) -> list:
+    """-> [(score, action_idx, label, why)], best first.
+
+    Priority bands follow the scripted bot's proven order (play -> upgrade on
+    curve -> sell-to-upgrade -> buy best -> power -> activate -> refresh), with
+    the bot's value function; on top of that: memory biases, board-tribe
+    commitment, and the positioning lookahead (which runs before EndTurn).
+    """
     me = view["me"]
     shop = me.get("shop") or []
     hand = me.get("hand") or []
     board = me.get("board") or []
     gold = me.get("gold", 0)
-    health = me.get("health", 30)
-    hand_full = len(hand) >= (me.get("hand_limit") or 10)
-    board_full = len(board) >= 7
 
-    from .facts import extract_facts, norm_tribe  # local import avoids a cycle at load
+    from .facts import extract_facts, norm_tribe
     f = extract_facts(view)
 
     biases = [m.get("bias") or {} for m, _p in matched]
@@ -104,71 +154,110 @@ def score_actions(view: dict, matched: list, legal: list[int]) -> list:
     et_gold_pen = max((b.get("penalize_endturn_with_gold", 0) for b in biases), default=0)
     allow_sell_trigger = any(b.get("sell_to_trigger") for b in biases)
 
+    board_quality = [card_quality(m) for m in board]
+    hand_quality = [card_quality(c) for c in hand]
+    board_ids = [m.get("id") for m in board]
+    hand_ids = [c.get("id") for c in hand]
+    minions_owned = sum(1 for c in hand if c.get("type") != "spell") + len(board)
+    board_full = len(board) >= 7
+    weakest_val = min(board_quality) if board_quality else -1.0
+    best_shop_val = max((card_quality(c) for c in shop), default=-1.0)
+    commit = {t for t, n in f["tribes"].items() if n >= 2}
+    on_curve = (f["upgrade_price"] or 99) <= 3 or (
+        f["turn"] > 2 * f["tier"] and gold >= (f["upgrade_price"] or 99))
+
+    def pair_of(card) -> bool:
+        cid = card.get("id")
+        return bool(cid) and not card.get("golden") and (
+            board_ids.count(cid) + hand_ids.count(cid) >= 1)
+
     scored = []
     for i in legal:
         d = decode(i)
         kind = d[0]
         score, why = 0.0, []
-        if kind == "buy":
-            slot = d[1]
-            card = shop[slot] if slot < len(shop) else {}
-            score = 10.0
-            why.append("buy")
-            t = {norm_tribe(r) for r in card.get("races") or []}
-            hit = t & buy_tribe
-            if hit:
-                score += 8
-                why.append(f"tribe {sorted(hit)}")
-            if card.get("tier", 9) <= f["tier"] + 1:
-                score += 2
-            score += buy_any
-            if hand_full and card.get("type") != "spell":
-                score -= 5
-                why.append("hand full")
-        elif kind == "play":
-            h = d[1]
+        if kind == "play":
+            h, pos = d[1], d[2]
             card = hand[h] if h < len(hand) else {}
-            score = 9.0 + play_bonus
-            why.append(f"play hand {h}")
-            if card.get("type") == "spell" and d[2] > 0:
-                score = -1.0  # spells only play at pos 0; illegal variants score low
+            is_spell = card.get("type") == "spell"
+            if is_spell and pos > 0:
+                score = -1.0
+            else:
+                score = 40.0 + 0.1 * (hand_quality[h] if h < len(hand_quality) else 0) + play_bonus
+                why.append(f"play hand {h}")
+                if not is_spell and pos == min(f["board_count"], N_BOARD - 1):
+                    score += 1.0       # a new minion joins the right naturally
+                elif not is_spell and pos > f["board_count"]:
+                    score -= 3.0
+        elif kind == "magnetize":
+            score = 39.0
+            why.append("magnetize")
+        elif kind == "upgrade":
+            if on_curve and f["tier"] < 6:
+                score = 35.0
+                why.append("on curve")
+            else:
+                score = -5.0
+            # survival gate (ablated +0.09 dev / +0.08 holdout): levelling at low
+            # health was the dominant death mode — buy tempo instead
+            if (score > 0 and f["health"] < 20 and f["tier"] >= 3
+                    and (f["upgrade_price"] or 99) > 3):
+                score = -20.0
+                why.append("low health: tempo over tier")
+            score += up_bonus
         elif kind == "sell":
             j = d[1]
-            weakest = board and j == min(range(len(board)),
-                                         key=lambda k: board[k]["atk"] + board[k]["hp"])
-            if board_full:
-                score = 3.0 if weakest else 1.0
-                why.append("make room")
-            elif allow_sell_trigger and weakest:
+            is_weakest = board and j == min(range(len(board)), key=lambda k: board_quality[k])
+            if (board_full and is_weakest and gold >= 3
+                    and best_shop_val > weakest_val + 4):
+                score = 34.0
+                why.append("sell weakest for a better buy")
+            elif allow_sell_trigger and is_weakest:
                 score = 2.0
                 why.append("trigger value")
             else:
                 score = -2.0
-        elif kind == "upgrade":
-            price = me.get("upgrade_price") or 99
-            score = 6.0 if health > 20 else 2.0
-            if gold < price:
-                score = -5.0
-            score += up_bonus
-            why.append("upgrade")
+        elif kind == "buy":
+            slot = d[1]
+            card = shop[slot] if slot < len(shop) else {}
+            is_spell = card.get("type") == "spell"
+            score = 10.0 + 0.5 * card_quality(card)
+            why.append("buy")
+            if not is_spell and pair_of(card):
+                score += 15.0
+                why.append("pair")
+            t = {norm_tribe(r) for r in card.get("races") or []}
+            hit = t & buy_tribe
+            if hit:
+                score += 8
+                why.append(f"tribe bias {sorted(hit)}")
+            elif not is_spell and t & commit:
+                score += 4
+                why.append(f"commit {sorted(t & commit)}")
+            score += buy_any
+            if not is_spell and minions_owned >= 7 and not pair_of(card):
+                score = -1.0          # hand congestion gate (pairs still welcome)
+                why.append("hand congested")
         elif kind == "power":
-            score = 4.0 if gold >= 2 else -2.0
-            why.append(f"power {d[1]}")
+            slot = d[1]
+            powers = me.get("hero_powers") or []
+            cost = (powers[slot].get("cost", 2) if slot < len(powers) else 2)
+            score = 8.0 if gold >= max(cost, 1) else -2.0
+            if cost == 0:
+                score = 9.0
+            why.append(f"power {slot} (cost {cost})")
+        elif kind == "activate":
+            score = 7.0
+            why.append("activate")
+        elif kind == "gift":
+            score = 7.5 if minions_owned < 7 else 0.0
+            why.append("dark gift")
         elif kind == "refresh":
-            score = 0.5 if gold >= 4 else -2.0
+            score = 5.0 if (gold >= 3 and n_turn_actions < 40) else -2.0
             why.append("reroll")
         elif kind == "freeze":
             score = -0.5 + freeze_bonus
             why.append("freeze")
-        elif kind == "magnetize":
-            score = 6.0
-            why.append("magnetize")
-        elif kind == "activate":
-            score = 3.0
-            why.append("activate")
-        elif kind == "gift":
-            score = 1.0
-            why.append("dark gift")
         elif kind == "end":
             score = float(end_bonus)
             if gold >= 4 and et_gold_pen:

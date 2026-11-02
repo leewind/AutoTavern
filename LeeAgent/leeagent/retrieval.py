@@ -28,26 +28,31 @@ class Retrieval:
 def retrieve(store: list, view: dict, facts: dict, th: dict, base: str = nimble.NIMBLE_BASE) -> Retrieval:
     r = Retrieval()
     cands = memory.prefilter(store, facts, th["max_candidates"])
+    # code-exact memories: the `when` alone decides them (calibration showed the
+    # semantic residue of these was unjudgeable or pure false-positive mass)
+    exact = [m for m in cands if m.get("code_exact")]
+    semantic = [m for m in cands if not m.get("code_exact")]
     r.candidates = [m["id"] for m in cands]
-    if not cands or facts.get("pending"):
+    r.matched = [(m, 1.0) for m in exact]
+    if not semantic or facts.get("pending"):
         return r
 
     state = {"game": render_state(view),
-             "candidates": [memory.slim(m) for m in cands]}
+             "candidates": [memory.slim(m) for m in semantic]}
     qs = {}
-    for k, m in enumerate(cands[:th["max_questions"]]):
+    for k, m in enumerate(semantic[:th["max_questions"]]):
         qs[f"app_{m['id']}"] = {
             "type": "noul",
             "instructions": (f"Memory candidate {m['id']} is at `candidates[{k}]`. "
                              f"Is its situation present in `game` right now?"),
             "criteria": {"true": "applies to the current game state",
                          "false": "does not apply now"}}
-    if th["ask_top_choice"] and len(cands) > 1:
+    if th["ask_top_choice"] and len(semantic) > 1:
         qs["top"] = {
             "type": "choice",
             "instructions": "Which single memory candidate is the most important "
                             "to act on in the current `game` state?",
-            "criteria": {m["id"]: m["situation"] for m in cands} | {"none": "No candidate applies now"}}
+            "criteria": {m["id"]: m["situation"] for m in semantic} | {"none": "No candidate applies now"}}
 
     out = nimble.ask_batch(state, qs, base=base)
     r.nimble_ms = out.get("nimble_metrics", {}).get("scoring_ms", 0.0)
@@ -56,11 +61,11 @@ def retrieve(store: list, view: dict, facts: dict, th: dict, base: str = nimble.
     r.top = out["answers"].get("top", {}).get("choice", "")
 
     scored = []
-    for m in cands:
+    for m in semantic:
         a = out["answers"].get(f"app_{m['id']}")
         if a is not None:
             scored.append((m, float(a["noul"])))
-    r.matched = sorted([x for x in scored if x[1] >= th["min_apply_prob"]],
+    r.matched = sorted(r.matched + [x for x in scored if x[1] >= th["min_apply_prob"]],
                        key=lambda x: -x[1])
     r.uncertain = sorted([x for x in scored
                           if th["uncertain_band"] <= x[1] < th["min_apply_prob"]],

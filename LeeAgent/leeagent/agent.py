@@ -40,14 +40,25 @@ class LeeAgent:
         legal = policy.legal_actions(game, seat)
 
         if facts["pending"]:
-            act = policy.choose_pending(legal)
+            act = policy.choose_pending(legal, view)
             self._turn_actions.append(f"pending:{taverngym.action_name(act)}")
             return act
 
         if view["turn"] != self._turn_seen:
             self._on_turn(game, seat, view, facts)
 
-        scored = policy.score_actions(view, self._retrieval.matched, legal)
+        # hard stop against pathological action loops (0-cost repeatables):
+        # the scripted bot caps at 60 actions per turn; so do we
+        if len(self._turn_actions) >= 60:
+            for i in legal:
+                if policy.decode(i)[0] == "end":
+                    self._turn_actions.append("end:cap60")
+                    return i
+            self._turn_actions.append("cap60:fallback")
+            return sorted(legal)[0]
+
+        scored = policy.score_actions(view, self._retrieval.matched, legal,
+                                      n_turn_actions=len(self._turn_actions))
         best = scored[0]
         if (best[2] == "end" and self.th["fix_positioning"] and not self._positioned
                 and facts["board_count"] >= 2 and facts["next_opponent"] is not None):
