@@ -31,6 +31,7 @@ DEFAULTS = {
     # lookahead
     "fix_positioning": False,  # OFF by default: ablated (dev +0.057, holdout +0.071),
                                # it optimized against the opponent's stale scouted board
+    "buy_lookahead": False,    # ablated harmful (dev 57%, holdout 45%)
     "positioning_sims": 48,    # combats per candidate arrangement
     # gate / cold path
     "gate_n_games": 40,

@@ -34,6 +34,12 @@ A_MAGNETIZE = 126              # + hand * 7 + board
 A_MOVE = 196                   # + from * 7 + to
 N_ACTIONS = 245
 
+# tunable policy constants (coordinate-ascent trained; see scripts/param_sweep.py)
+SWAP_MARGIN = 10          # slot-upgrade: best_shop must beat weakest by this
+SCOUT_BEHIND = 0.30       # combat-preview win rate below this = all-in tempo
+HP_GATE = 20              # no levelling below this health past tier 3
+CURVE_MULT = 2.0          # upgrade on curve when turn > CURVE_MULT * tier
+
 
 def legal_actions(game, seat: int) -> list[int]:
     mask = game.legal_mask(seat)
@@ -75,6 +81,35 @@ def decode(i: int):
 
 _PREMIUM_KW = {"DIVINE_SHIELD", "TAUNT", "REBORN", "WINDFURY", "VENOMOUS", "POISONOUS"}
 
+_TRIBES = ("beast", "dragon", "mech", "murloc", "undead", "demon",
+           "elemental", "pirate", "quilboar")
+
+
+def trinket_score(o: dict, facts: dict) -> float:
+    """Text heuristic for trinket offers (all show tier 0 / 0 stats).
+
+    Rewards ongoing aura/economy effects, penalises conditional triggers and
+    tribes the board does not run; cheaper is a little better (tempo).
+    """
+    t = (o.get("text") or "").lower()
+    s = 0.0
+    for kw, w in (("divine shield", 4), ("extra time", 4), ("trigger", 2),
+                  ("start of each turn", 3), ("start of your turn", 3),
+                  ("end of your turn", 2), ("your minions", 3), ("have +", 3),
+                  ("gains +", 3), ("golden", 2), ("tier 6", 2), ("tier 5", 1.5),
+                  ("gold", 1.5), ("refresh", 1.0), ("venomous", 4), ("reborn", 3)):
+        if kw in t:
+            s += w
+    for kw in ("when you buy", "after you play", "last game", "if you"):
+        if kw in t:
+            s -= 2
+    tribes_have = {tr.lower() for tr in facts.get("tribes", {})}
+    for tr in _TRIBES:
+        if tr in t and tr not in tribes_have:
+            s -= 3
+    s -= 0.5 * (o.get("cost") or 0)
+    return s
+
 
 def card_quality(card: dict) -> float:
     """Minion value on the scripted bot's proven scale: stats + 3*tier + keywords."""
@@ -111,6 +146,9 @@ def choose_pending(legal: list[int], view: dict) -> int:
         return idx if idx in opts else opts[0]
 
     def opt_score(o):
+        if pending.get("kind") == "trinket":
+            from .facts import extract_facts
+            return trinket_score(o, extract_facts(view))
         if o.get("type") == "spell" or not o.get("tier"):
             return float(2 + (o.get("tier") or 0))
         return card_quality(o)
@@ -127,7 +165,8 @@ def choose_pending(legal: list[int], view: dict) -> int:
     return best_idx
 
 
-def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: int = 0) -> list:
+def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: int = 0,
+                  scout: float | None = None, buy_hint: int | None = None) -> list:
     """-> [(score, action_idx, label, why)], best first.
 
     Priority bands follow the scripted bot's proven order (play -> upgrade on
@@ -164,12 +203,18 @@ def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: i
     best_shop_val = max((card_quality(c) for c in shop), default=-1.0)
     commit = {t for t, n in f["tribes"].items() if n >= 2}
     on_curve = (f["upgrade_price"] or 99) <= 3 or (
-        f["turn"] > 2 * f["tier"] and gold >= (f["upgrade_price"] or 99))
+        f["turn"] > CURVE_MULT * f["tier"] and gold >= (f["upgrade_price"] or 99))
 
     def pair_of(card) -> bool:
         cid = card.get("id")
         return bool(cid) and not card.get("golden") and (
             board_ids.count(cid) + hand_ids.count(cid) >= 1)
+
+    def copies_owned(card) -> int:
+        cid = card.get("id")
+        if not cid or card.get("golden"):
+            return 0
+        return board_ids.count(cid) + hand_ids.count(cid)
 
     scored = []
     for i in legal:
@@ -198,9 +243,18 @@ def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: i
                 why.append("on curve")
             else:
                 score = -5.0
+            # scouting: clearly behind in the next fight -> tempo over tier;
+            # clearly ahead -> keep scaling (the one adaptive edge the bot lacks)
+            if scout is not None and score > 0 and (f["upgrade_price"] or 99) > 3:
+                if scout < SCOUT_BEHIND:
+                    score = -15.0
+                    why.append(f"behind (scout {scout:.2f})")
+                elif scout > 0.55:
+                    score += 6.0
+                    why.append(f"ahead (scout {scout:.2f})")
             # survival gate (ablated +0.09 dev / +0.08 holdout): levelling at low
             # health was the dominant death mode — buy tempo instead
-            if (score > 0 and f["health"] < 20 and f["tier"] >= 3
+            if (score > 0 and f["health"] < HP_GATE and f["tier"] >= 3
                     and (f["upgrade_price"] or 99) > 3):
                 score = -20.0
                 why.append("low health: tempo over tier")
@@ -212,6 +266,14 @@ def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: i
                     and best_shop_val > weakest_val + 4):
                 score = 34.0
                 why.append("sell weakest for a better buy")
+            elif (is_weakest and len(board) >= 4 and f["turn"] >= 8 and gold >= 3
+                    and best_shop_val > weakest_val + SWAP_MARGIN):
+                score = 9.0            # mid-game slot upgrade (ablated +0.02/+0.015)
+                if scout is not None and scout < SCOUT_BEHIND:
+                    score = -2.0       # behind: never trade a body away this turn
+                    why.append("behind: keep bodies")
+                else:
+                    why.append("slot upgrade")
             elif allow_sell_trigger and is_weakest:
                 score = 2.0
                 why.append("trigger value")
@@ -226,6 +288,9 @@ def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: i
             if not is_spell and pair_of(card):
                 score += 15.0
                 why.append("pair")
+            if not is_spell and copies_owned(card) >= 2:
+                score += 25.0          # the third copy: golden + triple reward
+                why.append("triple!")
             t = {norm_tribe(r) for r in card.get("races") or []}
             hit = t & buy_tribe
             if hit:
@@ -235,6 +300,12 @@ def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: i
                 score += 4
                 why.append(f"commit {sorted(t & commit)}")
             score += buy_any
+            if buy_hint is not None and i == buy_hint:
+                score += 6.0
+                why.append("lookahead pick")
+            if scout is not None and scout < SCOUT_BEHIND and not is_spell:
+                score += 4.0           # behind: any body helps the next fight
+                why.append("behind: tempo buy")
             if not is_spell and minions_owned >= 7 and not pair_of(card):
                 score = -1.0          # hand congestion gate (pairs still welcome)
                 why.append("hand congested")

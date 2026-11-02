@@ -18,14 +18,14 @@ from leeagent import memory                          # noqa: E402
 from leeagent.config import BENCH_ENV_FILE, thresholds  # noqa: E402
 
 SYSTEM = """You distill Hearthstone Battlegrounds games into reusable memories for a game-playing agent.
-Return a JSON array of at most {n} objects, each:
+Return a JSON array of at most __N__ objects, each:
 {{"kind": "econ|position|comp|target|strategy",
   "when": {{...}},      // exact, code-checked preconditions; vocabulary:
                        // turn_min, turn_max, tier_min, tier_max, hp_below, hp_above,
                        // gold_gte, gold_lte, board_count_gte, num_alive_lte,
                        // hand_full, board_full, next_is_ghost,
                        // tribe_min: {{TRIBE: n}}, shop_tribe_min: {{TRIBE: n}}, any_keyword: [KW]
-                       // use {} for anything you cannot pin down exactly
+                       // use an empty object for anything you cannot pin down exactly
   "situation": "...",  // <=18 English words, only the part code cannot check
   "action": "...",     // one concrete instruction
   "rationale": "...",  // why it wins games
@@ -62,7 +62,7 @@ def distill(game_result: dict, store: list, th: dict | None = None, env_file: Pa
 
     rsp = client.chat.completions.create(
         model=env.get("MODEL", "deepseek-chat"),
-        messages=[{"role": "system", "content": SYSTEM.format(n=th["max_new_candidates"], when="{}")},
+        messages=[{"role": "system", "content": SYSTEM.replace("__N__", str(th["max_new_candidates"]))},
                   {"role": "user", "content": prompt}],
         max_tokens=1500, temperature=0.2,
         extra_body={"thinking": {"type": "disabled"}})
