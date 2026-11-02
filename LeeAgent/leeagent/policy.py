@@ -39,6 +39,10 @@ SWAP_MARGIN = 10          # slot-upgrade: best_shop must beat weakest by this
 SCOUT_BEHIND = 0.30       # combat-preview win rate below this = all-in tempo
 HP_GATE = 20              # no levelling below this health past tier 3
 CURVE_MULT = 2.0          # upgrade on curve when turn > CURVE_MULT * tier
+COMP_BUY_BASE = 0.0       # comp-race buy bonus (plus engine-text value);
+                          # flat race bonus ablated to 0 — engines carry the value
+OFFCOMP_TAX = 4.0         # off-comp minion buy penalty (waived when behind)
+COMP_SELL_PROTECT = 6.0   # sell-value protection for comp pieces
 
 
 def legal_actions(game, seat: int) -> list[int]:
@@ -287,7 +291,7 @@ def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: i
                 for k, m in enumerate(board):
                     t = {norm_tribe(r) for r in m.get("races") or []}
                     if comp in t:
-                        sell_quality[k] += 6.0
+                        sell_quality[k] += COMP_SELL_PROTECT
             is_weakest = board and j == min(range(len(board)), key=lambda k: sell_quality[k])
             if (board_full and is_weakest and gold >= 3
                     and best_shop_val > weakest_val + 4):
@@ -325,10 +329,10 @@ def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: i
             if comp and not is_spell:
                 if comp in t:
                     from .comp import engine_text_bonus
-                    score += 3.0 + engine_text_bonus(card)
+                    score += COMP_BUY_BASE + engine_text_bonus(card)
                     why.append(f"comp {comp}")
                 elif scout is None or scout >= SCOUT_BEHIND:
-                    score -= 4.0      # off-comp tax (waived when behind)
+                    score -= OFFCOMP_TAX   # off-comp tax (waived when behind)
                     why.append("off-comp")
             hit = t & buy_tribe
             if hit:

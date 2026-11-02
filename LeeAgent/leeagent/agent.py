@@ -87,7 +87,7 @@ class LeeAgent:
         self._danger = self._scout(game, seat, facts)
         self._fresh = self._scout_fresh(view, facts)
         self._buy_hint = self._search_buy(game, seat, view, facts)
-        if self._comp is None and facts["turn"] >= 4:
+        if self._comp is None and facts["turn"] >= comp_mod.COMMIT_TURN:
             self._comp = comp_mod.decide(view, facts)
         if self.use_nimble and facts["turn"] >= 3:  # early turns: nothing to judge yet
             self._retrieval = retrieve(self.store, view, facts, self.th, base=self.base)
