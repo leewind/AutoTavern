@@ -1,0 +1,462 @@
+{
+ "BG21_HERO_000": {
+  "n": 16,
+  "mean_place": 2.25
+ },
+ "TB_BaconShop_HERO_75": {
+  "n": 16,
+  "mean_place": 2.375
+ },
+ "BG28_HERO_801": {
+  "n": 16,
+  "mean_place": 2.562
+ },
+ "TB_BaconShop_HERO_14": {
+  "n": 16,
+  "mean_place": 2.625
+ },
+ "BG20_HERO_102": {
+  "n": 16,
+  "mean_place": 2.812
+ },
+ "BG34_HERO_002": {
+  "n": 16,
+  "mean_place": 2.875
+ },
+ "TB_BaconShop_HERO_11": {
+  "n": 16,
+  "mean_place": 2.875
+ },
+ "TB_BaconShop_HERO_53": {
+  "n": 16,
+  "mean_place": 2.875
+ },
+ "BG31_HERO_006": {
+  "n": 16,
+  "mean_place": 2.938
+ },
+ "TB_BaconShop_HERO_52": {
+  "n": 16,
+  "mean_place": 2.938
+ },
+ "TB_BaconShop_HERO_29": {
+  "n": 16,
+  "mean_place": 3.0
+ },
+ "TB_BaconShop_HERO_34": {
+  "n": 16,
+  "mean_place": 3.0
+ },
+ "TB_BaconShop_HERO_01": {
+  "n": 16,
+  "mean_place": 3.0
+ },
+ "BG24_HERO_204": {
+  "n": 16,
+  "mean_place": 3.062
+ },
+ "TB_BaconShop_HERO_49": {
+  "n": 16,
+  "mean_place": 3.062
+ },
+ "BG20_HERO_100": {
+  "n": 16,
+  "mean_place": 3.125
+ },
+ "BG22_HERO_002": {
+  "n": 16,
+  "mean_place": 3.125
+ },
+ "BG20_HERO_202": {
+  "n": 16,
+  "mean_place": 3.125
+ },
+ "TB_BaconShop_HERO_94": {
+  "n": 16,
+  "mean_place": 3.125
+ },
+ "BG20_HERO_242": {
+  "n": 16,
+  "mean_place": 3.188
+ },
+ "BG36_HERO_105": {
+  "n": 16,
+  "mean_place": 3.188
+ },
+ "TB_BaconShop_HERO_27": {
+  "n": 16,
+  "mean_place": 3.188
+ },
+ "TB_BaconShop_HERO_93": {
+  "n": 16,
+  "mean_place": 3.188
+ },
+ "BG28_HERO_800": {
+  "n": 16,
+  "mean_place": 3.25
+ },
+ "BG21_HERO_010": {
+  "n": 16,
+  "mean_place": 3.25
+ },
+ "BG22_HERO_305": {
+  "n": 16,
+  "mean_place": 3.25
+ },
+ "TB_BaconShop_HERO_33": {
+  "n": 16,
+  "mean_place": 3.25
+ },
+ "BG31_HERO_005": {
+  "n": 16,
+  "mean_place": 3.312
+ },
+ "BG22_HERO_000": {
+  "n": 16,
+  "mean_place": 3.312
+ },
+ "BG20_HERO_282": {
+  "n": 16,
+  "mean_place": 3.312
+ },
+ "TB_BaconShop_HERO_23": {
+  "n": 16,
+  "mean_place": 3.312
+ },
+ "BG34_HERO_000": {
+  "n": 16,
+  "mean_place": 3.375
+ },
+ "TB_BaconShop_HERO_42": {
+  "n": 16,
+  "mean_place": 3.375
+ },
+ "BG31_HERO_801": {
+  "n": 16,
+  "mean_place": 3.5
+ },
+ "BG22_HERO_200": {
+  "n": 16,
+  "mean_place": 3.5
+ },
+ "BG22_HERO_004": {
+  "n": 16,
+  "mean_place": 3.5
+ },
+ "BG26_HERO_102": {
+  "n": 16,
+  "mean_place": 3.5
+ },
+ "TB_BaconShop_HERO_21": {
+  "n": 16,
+  "mean_place": 3.5
+ },
+ "TB_BaconShop_HERO_70": {
+  "n": 16,
+  "mean_place": 3.5
+ },
+ "BG22_HERO_003": {
+  "n": 16,
+  "mean_place": 3.562
+ },
+ "BG28_HERO_400": {
+  "n": 16,
+  "mean_place": 3.562
+ },
+ "BG22_HERO_001": {
+  "n": 16,
+  "mean_place": 3.562
+ },
+ "BG34_HERO_004": {
+  "n": 16,
+  "mean_place": 3.562
+ },
+ "TB_BaconShop_HERO_43": {
+  "n": 16,
+  "mean_place": 3.562
+ },
+ "TB_BaconShop_HERO_36": {
+  "n": 16,
+  "mean_place": 3.562
+ },
+ "TB_BaconShop_HERO_55": {
+  "n": 16,
+  "mean_place": 3.562
+ },
+ "BG24_HERO_100": {
+  "n": 16,
+  "mean_place": 3.625
+ },
+ "TB_BaconShop_HERO_74": {
+  "n": 16,
+  "mean_place": 3.625
+ },
+ "BG26_HERO_101": {
+  "n": 16,
+  "mean_place": 3.688
+ },
+ "BG33_HERO_001": {
+  "n": 16,
+  "mean_place": 3.688
+ },
+ "BG35_HERO_001": {
+  "n": 16,
+  "mean_place": 3.688
+ },
+ "TB_BaconShop_HERO_60": {
+  "n": 16,
+  "mean_place": 3.688
+ },
+ "TB_BaconShop_HERO_95": {
+  "n": 16,
+  "mean_place": 3.688
+ },
+ "BG32_HERO_002": {
+  "n": 16,
+  "mean_place": 3.75
+ },
+ "TB_BaconShop_HERO_50": {
+  "n": 16,
+  "mean_place": 3.75
+ },
+ "TB_BaconShop_HERO_08": {
+  "n": 16,
+  "mean_place": 3.812
+ },
+ "TB_BaconShop_HERO_22": {
+  "n": 16,
+  "mean_place": 3.812
+ },
+ "TB_BaconShop_HERO_72": {
+  "n": 16,
+  "mean_place": 3.812
+ },
+ "BG20_HERO_103": {
+  "n": 16,
+  "mean_place": 3.875
+ },
+ "TB_BaconShop_HERO_37": {
+  "n": 16,
+  "mean_place": 3.875
+ },
+ "TB_BaconShop_HERO_57": {
+  "n": 16,
+  "mean_place": 3.875
+ },
+ "TB_BaconShop_HERO_91": {
+  "n": 16,
+  "mean_place": 3.875
+ },
+ "BG23_HERO_201": {
+  "n": 16,
+  "mean_place": 3.938
+ },
+ "BG21_HERO_030": {
+  "n": 16,
+  "mean_place": 3.938
+ },
+ "BG20_HERO_201": {
+  "n": 16,
+  "mean_place": 3.938
+ },
+ "TB_BaconShop_HERO_92": {
+  "n": 16,
+  "mean_place": 3.938
+ },
+ "BG27_HERO_801": {
+  "n": 16,
+  "mean_place": 4.0
+ },
+ "TB_BaconShop_HERO_15": {
+  "n": 16,
+  "mean_place": 4.0
+ },
+ "TB_BaconShop_HERO_12": {
+  "n": 16,
+  "mean_place": 4.0
+ },
+ "BG34_HERO_001": {
+  "n": 16,
+  "mean_place": 4.0
+ },
+ "TB_BaconShop_HERO_35": {
+  "n": 16,
+  "mean_place": 4.0
+ },
+ "TB_BaconShop_HERO_59": {
+  "n": 16,
+  "mean_place": 4.0
+ },
+ "TB_BaconShop_HERO_64": {
+  "n": 16,
+  "mean_place": 4.0
+ },
+ "BG31_HERO_811": {
+  "n": 16,
+  "mean_place": 4.062
+ },
+ "BG30_HERO_304": {
+  "n": 16,
+  "mean_place": 4.062
+ },
+ "TB_BaconShop_HERO_02": {
+  "n": 16,
+  "mean_place": 4.062
+ },
+ "TB_BaconShop_HERO_17": {
+  "n": 16,
+  "mean_place": 4.125
+ },
+ "TB_BaconShop_HERO_41": {
+  "n": 16,
+  "mean_place": 4.125
+ },
+ "TB_BaconShop_HERO_40": {
+  "n": 16,
+  "mean_place": 4.125
+ },
+ "BG20_HERO_283": {
+  "n": 16,
+  "mean_place": 4.188
+ },
+ "BG31_HERO_003": {
+  "n": 16,
+  "mean_place": 4.188
+ },
+ "TB_BaconShop_HERO_16": {
+  "n": 16,
+  "mean_place": 4.188
+ },
+ "TB_BaconShop_HERO_78": {
+  "n": 16,
+  "mean_place": 4.188
+ },
+ "BG26_HERO_104": {
+  "n": 16,
+  "mean_place": 4.25
+ },
+ "TB_BaconShop_HERO_62": {
+  "n": 16,
+  "mean_place": 4.25
+ },
+ "BG25_HERO_103": {
+  "n": 16,
+  "mean_place": 4.375
+ },
+ "BG20_HERO_280": {
+  "n": 16,
+  "mean_place": 4.438
+ },
+ "BG23_HERO_303": {
+  "n": 16,
+  "mean_place": 4.438
+ },
+ "BG31_HERO_802": {
+  "n": 16,
+  "mean_place": 4.625
+ },
+ "TB_BaconShop_HERO_76": {
+  "n": 16,
+  "mean_place": 4.625
+ },
+ "BG20_HERO_301": {
+  "n": 16,
+  "mean_place": 4.688
+ },
+ "BG36_HERO_002": {
+  "n": 16,
+  "mean_place": 4.688
+ },
+ "TB_BaconShop_HERO_38": {
+  "n": 16,
+  "mean_place": 4.75
+ },
+ "TB_BaconShop_HERO_45": {
+  "n": 16,
+  "mean_place": 4.75
+ },
+ "TB_BaconShop_HERO_90": {
+  "n": 16,
+  "mean_place": 4.75
+ },
+ "BG36_HERO_101": {
+  "n": 16,
+  "mean_place": 4.812
+ },
+ "BG23_HERO_305": {
+  "n": 16,
+  "mean_place": 4.875
+ },
+ "TB_BaconShop_HERO_18": {
+  "n": 16,
+  "mean_place": 4.875
+ },
+ "TB_BaconShop_HERO_68": {
+  "n": 16,
+  "mean_place": 4.875
+ },
+ "BG22_HERO_201": {
+  "n": 16,
+  "mean_place": 5.062
+ },
+ "BG25_HERO_105": {
+  "n": 16,
+  "mean_place": 5.125
+ },
+ "TB_BaconShop_HERO_702": {
+  "n": 16,
+  "mean_place": 5.125
+ },
+ "TB_BaconShop_HERO_28": {
+  "n": 16,
+  "mean_place": 5.188
+ },
+ "BG20_HERO_101": {
+  "n": 16,
+  "mean_place": 5.25
+ },
+ "TB_BaconShop_HERO_56": {
+  "n": 16,
+  "mean_place": 5.312
+ },
+ "TB_BaconShop_HERO_39": {
+  "n": 16,
+  "mean_place": 5.375
+ },
+ "TB_BaconShop_HERO_67": {
+  "n": 16,
+  "mean_place": 5.438
+ },
+ "TB_BaconShop_HERO_71": {
+  "n": 16,
+  "mean_place": 5.438
+ },
+ "BG25_HERO_100": {
+  "n": 16,
+  "mean_place": 5.562
+ },
+ "BG36_HERO_000": {
+  "n": 16,
+  "mean_place": 5.562
+ },
+ "TB_BaconShop_HERO_10": {
+  "n": 16,
+  "mean_place": 5.562
+ },
+ "TB_BaconShop_HERO_25": {
+  "n": 16,
+  "mean_place": 5.562
+ },
+ "TB_BaconShop_HERO_58": {
+  "n": 16,
+  "mean_place": 5.625
+ },
+ "BG32_HERO_001": {
+  "n": 16,
+  "mean_place": 5.688
+ },
+ "BG21_HERO_020": {
+  "n": 16,
+  "mean_place": 6.562
+ }
+}

@@ -9,6 +9,7 @@ import json
 
 import taverngym
 
+from . import comp as comp_mod
 from . import lookahead, memory, nimble, policy
 from .config import NIMBLE_BASE, thresholds
 from .facts import extract_facts
@@ -34,6 +35,7 @@ class LeeAgent:
         self._turn_actions: list[str] = []
         self._danger: float | None = None
         self._buy_hint: int | None = None
+        self._comp: str | None = None
 
     # -- one decision ------------------------------------------------------
     def choose(self, game, seat: int) -> int:
@@ -61,7 +63,8 @@ class LeeAgent:
 
         scored = policy.score_actions(view, self._retrieval.matched, legal,
                                       n_turn_actions=len(self._turn_actions),
-                                      scout=self._danger, buy_hint=self._buy_hint)
+                                      scout=self._danger, buy_hint=self._buy_hint,
+                                      comp=self._comp)
         best = scored[0]
         if (best[2] == "end" and not self._positioned
                 and (self.th["fix_positioning"] or self._fresh)
@@ -84,6 +87,8 @@ class LeeAgent:
         self._danger = self._scout(game, seat, facts)
         self._fresh = self._scout_fresh(view, facts)
         self._buy_hint = self._search_buy(game, seat, view, facts)
+        if self._comp is None and facts["turn"] >= 4:
+            self._comp = comp_mod.decide(view, facts)
         if self.use_nimble and facts["turn"] >= 3:  # early turns: nothing to judge yet
             self._retrieval = retrieve(self.store, view, facts, self.th, base=self.base)
             self.stats["nimble_ms"] += self._retrieval.nimble_ms

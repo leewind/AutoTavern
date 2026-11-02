@@ -102,6 +102,29 @@ def combat_unit(args):
     return rid, {"answer": max(("win", "tie", "loss"), key=lambda k: out[k])}
 
 
+# ---------- phase 2b: value-model scoring (no rollouts) ----------
+
+def value_unit(args):
+    rid, k, state_str, seat, first = args
+    from tavernbench import engine as E
+    from leeagent.facts import extract_facts
+    from scripts.gen_trajectories import feat_row
+    import lightgbm as lgb
+    global _LGB
+    if "_LGB" not in globals():
+        _LGB = lgb.Booster(model_file=str(ROOT / "data" / "value_model.txt"))
+    g = E.from_state(state_str)
+    if first is not None:
+        if first not in E.legal(g, seat):
+            return rid, k, None
+        g.step(seat, first)
+    view = E.view(g, seat)
+    facts = extract_facts(view)
+    if facts["pending"]:
+        return rid, k, None
+    return rid, k, float(_LGB.predict([feat_row(view, facts, None)])[0])
+
+
 # ---------- phase 2: one (task, option, rollout) unit ----------
 
 def rollout_unit(args):
@@ -133,7 +156,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sims", type=int, default=512)
     ap.add_argument("--sims-prob", type=int, default=1024)
-    ap.add_argument("--rollouts", type=int, default=12)
+    ap.add_argument("--rollouts", type=int, default=24)
     a = ap.parse_args()
 
     from leeagent import memory
@@ -191,10 +214,27 @@ def main():
 
     # -- rollout tasks --------------------------------------------------
     from tavernbench import engine as E
+    # D1 (hero offers): answer straight from the empirical hero table
+    hero_table = json.loads((ROOT / "data" / "hero_table.json").read_text()) \
+        if (ROOT / "data" / "hero_table.json").is_file() else {}
+    for rid, row in states.items():
+        if rid.split("-")[0] != "D1" or not hero_table:
+            continue
+        scored = []
+        for k, alt in enumerate(row["states"]):
+            me = E.me(E.from_state(alt))
+            hid = (me.get("hero") or {}).get("id")
+            t = hero_table.get(hid)
+            if t:
+                scored.append((t["mean_place"], k))
+        if scored:
+            answers[rid] = {"answer": min(scored)[1]}
     roll_jobs = []
     for rid, row in states.items():
         sc = rid.split("-")[0]
         if sc == "D1":
+            if rid in answers:                 # answered from the hero table
+                continue
             for k, alt in enumerate(row["states"]):
                 for j in range(a.rollouts):
                     roll_jobs.append((rid, k, alt, 0, None, 1000 * k + j))
@@ -214,7 +254,38 @@ def main():
                     roll_jobs.append((rid, int(k), row["state"], row["seat"],
                                       int(k), 1000 * int(k) + j))
 
+    # value model available: prescreen N/D2/D4 options, verify the top-2 by
+    # rollouts (the model's coarse ranking prunes, rollouts discriminate)
+    top2 = {}
+    if (ROOT / "data" / "value_model.txt").is_file():
+        value_jobs = []
+        for rid, row in states.items():
+            sc = rid.split("-")[0]
+            if sc in ("N1", "N2", "D2", "D4") and rid not in answers:
+                for k in row["map"]:
+                    value_jobs.append((rid, int(k), row["state"],
+                                       row.get("seat", 0), int(k)))
+        vvals = defaultdict(dict)
+        if value_jobs:
+            with mp.Pool(96) as pool:
+                for rid, k, v in pool.imap_unordered(value_unit, value_jobs):
+                    if v is not None:
+                        vvals[rid][k] = v
+        for rid, vs in vvals.items():
+            if len(vs) == len(states[rid]["map"]):   # complete: keep top-2 only
+                top2[rid] = sorted(vs, key=vs.get, reverse=True)[:2]
+        print(f"value prescreen: {len(top2)} tasks -> top-2 ({time.time()-t0:.0f}s)",
+              flush=True)
+
     places = defaultdict(list)
+    if top2:
+        keep = []
+        for j in roll_jobs:
+            rid = j[0]
+            if rid in top2 and j[1] not in top2[rid]:
+                continue
+            keep.append(j)
+        roll_jobs = keep
     with mp.Pool(96) as pool:
         for rid, k, pl in pool.imap_unordered(rollout_unit, roll_jobs):
             if pl is not None:

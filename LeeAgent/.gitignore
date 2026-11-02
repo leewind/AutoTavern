@@ -3,3 +3,4 @@ runs/
 config.json
 memories/candidates*.jsonl
 *.pyc
+data/trajectories.npz

@@ -81,6 +81,19 @@ def decode(i: int):
 
 _PREMIUM_KW = {"DIVINE_SHIELD", "TAUNT", "REBORN", "WINDFURY", "VENOMOUS", "POISONOUS"}
 
+# empirical hero strength (scripts/hero_table.py: 115 heroes x 16 v16 games)
+_HERO_TABLE = None
+
+
+def _hero_table() -> dict:
+    global _HERO_TABLE
+    if _HERO_TABLE is None:
+        import json
+        from pathlib import Path
+        p = Path(__file__).resolve().parents[1] / "data" / "hero_table.json"
+        _HERO_TABLE = json.loads(p.read_text()) if p.is_file() else {}
+    return _HERO_TABLE
+
 _TRIBES = ("beast", "dragon", "mech", "murloc", "undead", "demon",
            "elemental", "pirate", "quilboar")
 
@@ -137,10 +150,15 @@ def choose_pending(legal: list[int], view: dict) -> int:
     if not options:
         return opts[len(opts) // 2]
     if pending.get("kind") == "hero":
+        table = _hero_table()
+
         def hero_score(o):
-            power = o.get("hero_power") or {}
+            t = table.get(o.get("id") or "")
+            if t:                      # empirical mean placement: lower is better
+                return -t["mean_place"]
+            power = o.get("hero_power") or {}   # fallback for unseen heroes
             return (-2.0 * (power.get("cost") or 0)
-                    + 0.1 * (o.get("armor") or 0))
+                    + 0.1 * (o.get("armor") or 0)) / 10.0
         best = max(range(len(options)), key=lambda k: (hero_score(options[k]), -k))
         idx = A_CHOOSE + best
         return idx if idx in opts else opts[0]
@@ -166,7 +184,8 @@ def choose_pending(legal: list[int], view: dict) -> int:
 
 
 def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: int = 0,
-                  scout: float | None = None, buy_hint: int | None = None) -> list:
+                  scout: float | None = None, buy_hint: int | None = None,
+                  comp: str | None = None) -> list:
     """-> [(score, action_idx, label, why)], best first.
 
     Priority bands follow the scripted bot's proven order (play -> upgrade on
@@ -261,7 +280,15 @@ def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: i
             score += up_bonus
         elif kind == "sell":
             j = d[1]
-            is_weakest = board and j == min(range(len(board)), key=lambda k: board_quality[k])
+            # comp pieces are protected: the engine the comp runs on is worth
+            # more than its stats
+            sell_quality = list(board_quality)
+            if comp:
+                for k, m in enumerate(board):
+                    t = {norm_tribe(r) for r in m.get("races") or []}
+                    if comp in t:
+                        sell_quality[k] += 6.0
+            is_weakest = board and j == min(range(len(board)), key=lambda k: sell_quality[k])
             if (board_full and is_weakest and gold >= 3
                     and best_shop_val > weakest_val + 4):
                 score = 34.0
@@ -290,8 +317,19 @@ def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: i
                 why.append("pair")
             if not is_spell and copies_owned(card) >= 2:
                 score += 25.0          # the third copy: golden + triple reward
+                if comp and comp in {norm_tribe(r) for r in card.get("races") or []}:
+                    score += 5.0
+                    why.append("comp triple!")
                 why.append("triple!")
             t = {norm_tribe(r) for r in card.get("races") or []}
+            if comp and not is_spell:
+                if comp in t:
+                    from .comp import engine_text_bonus
+                    score += 3.0 + engine_text_bonus(card)
+                    why.append(f"comp {comp}")
+                elif scout is None or scout >= SCOUT_BEHIND:
+                    score -= 4.0      # off-comp tax (waived when behind)
+                    why.append("off-comp")
             hit = t & buy_tribe
             if hit:
                 score += 8
