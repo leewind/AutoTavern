@@ -9,8 +9,9 @@ calls are cut by the gateway). Requests leave on a timer (every 60/rpm s, howeve
 still in flight; the gateway counts requests per key in fixed 60 s windows), a 429 holds all
 sends until the window resets and requeues the item without counting it as a failure. The
 key is read from the environment variable --key-env (the address from --base-url or
-OPENAI_BASE_URL), or from an --env file (API_KEY / API_BASE lines); it is never written anywhere,
-and an error is recorded as its type and HTTP status only.
+OPENAI_BASE_URL), or from an --env file (API_KEY / API_BASE lines, plus MODEL for a missing
+--model); it is never written anywhere, and an error is recorded as its type and HTTP status
+only.
 Resumable: ids already answered without an error are skipped.
 """
 
@@ -131,7 +132,8 @@ class Runner:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--set", required=True)
-    ap.add_argument("--model", required=True)
+    ap.add_argument("--model", default="",
+                    help="the model id to ask (or a MODEL line in --env)")
     ap.add_argument("--label", default="", help="model name written in the answers")
     ap.add_argument("--out", required=True)
     ap.add_argument("--env", default=DEFAULT_ENV, help="a file with API_KEY / API_BASE lines")
@@ -149,6 +151,10 @@ def main():
     ap.add_argument("--only", default="")
     ap.add_argument("--limit", type=int, default=0)
     a = ap.parse_args()
+    if not a.model and a.env:
+        a.model = read_env(a.env).get("MODEL", "")
+    if not a.model:
+        ap.error("--model is required (or a MODEL line in --env)")
 
     items = [json.loads(l) for l in open(Path(a.set) / "prompts.jsonl")]
     only = [s for s in a.only.split(",") if s]

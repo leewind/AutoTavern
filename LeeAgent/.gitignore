@@ -1,0 +1,5 @@
+__pycache__/
+runs/
+config.json
+memories/candidates*.jsonl
+*.pyc
