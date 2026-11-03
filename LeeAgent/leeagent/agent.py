@@ -19,6 +19,11 @@ SYNTH_SCOUT = False       # roadmap 5: danger vs turn-T board distribution
                           # instead of one opponent snapshot (gate switch)
 VALUE_GATE = False        # roadmap 7: value model vetoes on-curve upgrades
                           # when E[reward | best buy] beats E[reward | upgrade]
+UNIVERSAL_POS = True      # roadmap 4: rule-based arrangement, no opponent info
+                          # (windfury left / taunt by carry / summoners right;
+                          # fires only when a rule binds — bare reshuffles ablated.
+                          # Gate: dev -0.19 / holdout -0.34 / fresh 1700 -0.24,
+                          # merged 300 games p~0.045, adopted 2026-11-04)
 
 _LGBM = None
 
@@ -85,14 +90,23 @@ class LeeAgent:
                                       comp=self._comp,
                                       no_upgrade=self._no_upgrade)
         best = scored[0]
-        if (best[2] == "end" and not self._positioned
-                and (self.th["fix_positioning"] or self._fresh)
-                and facts["board_count"] >= 2 and facts["next_opponent"] is not None):
-            self._positioned = True
-            name = lookahead.fix_positioning(game, seat, view, self.th["positioning_sims"])
-            self.stats["positionings"] += 1
-            self._turn_actions.append(f"position:{name}")
-            return self.choose(game, seat)  # rescore after the moves
+        if best[2] == "end" and not self._positioned and facts["board_count"] >= 2:
+            did = []
+            if UNIVERSAL_POS:            # roadmap 4: rule-based, zero panel info
+                uo = lookahead.universal_order(view)
+                if uo is not None and lookahead.apply_order(game, seat, uo, view):
+                    did.append("universal")
+            if ((self.th["fix_positioning"] or self._fresh)
+                    and facts["next_opponent"] is not None):
+                fresh = json.loads(game.view(seat))   # view is stale after moves
+                name = lookahead.fix_positioning(game, seat, fresh,
+                                                 self.th["positioning_sims"])
+                did.append(name)
+            if did:
+                self._positioned = True
+                self.stats["positionings"] += 1
+                self._turn_actions.append("position:" + "+".join(did))
+                return self.choose(game, seat)  # rescore after the moves
 
         self._turn_actions.append(best[2])
         return best[1]

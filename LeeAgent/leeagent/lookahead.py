@@ -71,6 +71,46 @@ def candidate_orders(view: dict) -> list:
     return uniq
 
 
+def universal_order(view: dict) -> list | None:
+    """Roadmap 4: opponent-independent arrangement rules — no panel, no preview.
+
+    windfury leftmost (attack early, attack often), then taunts (weakest first,
+    so the strongest sits right beside the carry), then plain attackers by
+    attack with aura/buff carriers pushed behind them, deathrattle summoners
+    rightmost (their tokens flood in at the far end).
+    """
+    board = view["me"].get("board") or []
+    n = len(board)
+    if n < 2:
+        return None
+
+    def is_summoner(m) -> bool:
+        t = (m.get("text") or "").lower()
+        return "deathrattle" in t and "summon" in t
+
+    def is_buffer(m) -> bool:
+        t = (m.get("text") or "").lower()
+        return any(k in t for k in ("your minions", "your other minions",
+                                    "friendly minions"))
+
+    kw = lambda i: board[i].get("keywords") or []
+    windfury = [i for i in range(n) if "WINDFURY" in kw(i)]
+    taunts = sorted((i for i in range(n) if "TAUNT" in kw(i)),
+                    key=lambda i: (board[i]["atk"], i))     # strongest last
+    summoners = [i for i in range(n) if is_summoner(board[i])]
+    taken = set(windfury) | set(taunts) | set(summoners)
+    rest = [i for i in range(n) if i not in taken]
+    plain = sorted((i for i in rest if not is_buffer(board[i])),
+                   key=lambda i: (-board[i]["atk"], i))
+    buffers = sorted((i for i in rest if is_buffer(board[i])),
+                     key=lambda i: (-board[i]["atk"], i))
+    # no binding rule -> leave the arrangement alone (bare atk-desc reshuffles
+    # were part of the ablated preview positioning; they are speculation here)
+    if not (windfury or taunts or summoners or buffers):
+        return None
+    return windfury + taunts + plain + buffers + summoners
+
+
 def apply_order(game, seat: int, order: list, view: dict) -> bool:
     """Move minions into `order` (a permutation of current indices); False if blocked."""
     board = view["me"].get("board") or []
