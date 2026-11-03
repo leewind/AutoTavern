@@ -205,12 +205,15 @@ Engine mechanics (authoritative for this simulator):
 """
 
 
-def rules_answer(rid, prompt, client, model):
+def rules_answer(rid, prompt, client, model, cache):
     """One text-model call for a rules/economy task. The task prompt carries
     the rules summary, the state, the card rules and the answer format; we
     add a generic JSON-compliance instruction plus a fixed mechanics appendix
     distilled from the engine source (crates/taverngym/src) — no per-task
-    tuning."""
+    tuning. Answers are content-address cached (prompt + system prompt):
+    temperature 0 still re-rolls +/-3 answers per run, which is measurement
+    noise, not signal; the cache key changes whenever the appendix does."""
+    import hashlib
     import json
     import re
     t = time.time()
@@ -218,6 +221,9 @@ def rules_answer(rid, prompt, client, model):
                "step by step, then output ONLY the final answer as a single "
                "JSON object in the exact '## Answer format' given in the task."
                + MECHANICS_APPENDIX)
+    key = hashlib.sha1(f"{model}|{sys_msg}|{prompt}".encode()).hexdigest()[:16]
+    if key in cache:
+        return rid, cache[key], 0.0
     try:
         rsp = client.chat.completions.create(
             model=model,
@@ -228,6 +234,8 @@ def rules_answer(rid, prompt, client, model):
         text = rsp.choices[0].message.content or ""
         m = re.search(r"\{.*\}", text, re.S)
         ans = json.loads(m.group(0))["answer"] if m else None
+        if ans is not None:
+            cache[key] = ans
         return rid, ans, time.time() - t
     except Exception:
         return rid, None, time.time() - t
@@ -445,13 +453,18 @@ def main():
                         max_retries=2)
         model = env.get("MODEL", "deepseek-chat")
         t0r = time.time()
+        cache_p = ROOT / "runs" / "rules_cache.json"
+        cache = json.loads(cache_p.read_text()) if cache_p.is_file() else {}
         with ThreadPoolExecutor(8) as ex:
             futs = [ex.submit(rules_answer, rid, prompts[rid]["prompt"],
-                              client, model) for rid in rule_ids]
+                              client, model, cache) for rid in rule_ids]
             for f in futs:
                 rid, ans, _ = f.result()
                 if ans is not None:
                     answers[rid] = {"answer": ans}
+        cache_p.write_text(json.dumps(cache, indent=1))
+        print(f"rules outlet: {len(cache)} cached answers "
+              f"({time.time()-t0r:.0f}s)", flush=True)
         print(f"rules tasks: {len(rule_ids)} asked, {sum(1 for r in rule_ids if r in answers)} "
               f"answered ({time.time()-t0r:.0f}s)", flush=True)
 

@@ -35,6 +35,8 @@ COMMIT_MIN_BOARD = 3       # board minions of the tribe needed to commit
 W_AFFINITY = 3.0           # weight of board affinity
 W_DENSITY = 3.0            # weight of catalog engine density (normalised)
 W_HERO = 1.5               # hero-text affinity nudge
+PAIR_ANCHOR = 0.0          # reopen-path-b switch: tribe holding a causally
+                           # verified pair core gets this direction bonus
 
 _ENGINE_KW = ("whenever", "after you", "each turn", "gains +", "has +", "start of your turn")
 
@@ -96,12 +98,23 @@ def recipe_core_bonus(card_id: str | None, owned_ids: set,
     return 4.0 + 6.0 * strength / m
 
 
+@lru_cache(maxsize=1)
+def _pair_core_tribes() -> dict:
+    """card_id -> tribe for the causally verified fixed pairs (reopen path b)."""
+    p = Path(__file__).resolve().parents[1] / "data" / "fixed_pairs.json"
+    if not p.is_file():
+        return {}
+    return {r["core"]: r["tribe"] for r in json.loads(p.read_text())["pairs"]}
+
+
 def decide(view: dict, facts: dict) -> str | None:
     """The committed tribe, or None while the board shows no direction.
 
     Board affinity dominates (commit to what we already have), the catalog's
     engine density breaks ties between equal boards, hero text is a nudge.
     With USE_RECIPES the tie-break density is the measured recipe strength.
+    With PAIR_ANCHOR > 0 a tribe whose verified pair core is already owned
+    earns that bonus (worth ~2 board minions at the default affinity weight).
     """
     tribes = facts.get("tribes") or {}
     if USE_RECIPES and recipe_table():
@@ -111,12 +124,22 @@ def decide(view: dict, facts: dict) -> str | None:
         dens = engine_density()
         dmax = max(dens.values()) or 1
     hero_text = ((view["me"].get("hero") or {}).get("text") or "").lower()
+    if PAIR_ANCHOR:
+        owned = set()
+        for c in (view["me"].get("board") or []) + (view["me"].get("hand") or []):
+            cid = c.get("id") or ""
+            owned.add(cid[:-2] if cid.endswith("_G") else cid)
+        core_tribes = {t for cid, t in _pair_core_tribes().items() if cid in owned}
+    else:
+        core_tribes = set()
 
     best, best_s = None, 0.0
     for t in TRIBES:
         s = W_AFFINITY * tribes.get(t, 0) + W_DENSITY * dens[t] / dmax
         if t.lower() in hero_text:
             s += W_HERO
+        if PAIR_ANCHOR and t in core_tribes:
+            s += PAIR_ANCHOR
         if t == facts.get("comp"):        # sticking costs nothing
             s += 1.0
         if s > best_s:
