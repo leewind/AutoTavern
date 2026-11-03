@@ -48,3 +48,6 @@ guard-*.json
 *.npz
 *.npy
 *.pkl
+
+# LeeAgent raw synergy event log (regenerable, ~17MB)
+LeeAgent/data/synergy_games.jsonl

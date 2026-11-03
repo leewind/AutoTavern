@@ -112,6 +112,39 @@ def _trinket_table() -> dict:
         _TRINKET_TABLE = json.loads(p.read_text()) if p.is_file() else {}
     return _TRINKET_TABLE
 
+
+# empirical card-synergy lifts (scripts/synergy_gen.py + synergy_table.py:
+# E[reward | S bought with C on board] - E[reward | S bought without C],
+# per committed direction; sig edges only)
+_SYNERGY_TABLE = None
+SYNERGY_W = 0.0          # gate-rejected 2026-11-03 (dev +0.14 / holdout -0.14,
+                         # both n.s.; runs/synergy_gate_paired.json) — re-enable
+                         # only with a stronger estimator and a fresh paired gate
+
+
+def _synergy_table() -> dict:
+    global _SYNERGY_TABLE
+    if _SYNERGY_TABLE is None:
+        import json
+        from pathlib import Path
+        p = Path(__file__).resolve().parents[1] / "data" / "synergy_table.json"
+        _SYNERGY_TABLE = json.loads(p.read_text()) if p.is_file() else {}
+    return _SYNERGY_TABLE
+
+
+def synergy_bonus(card_id: str | None, board_ids: list, comp: str | None) -> float:
+    """Empirical lift of buying card_id on top of the current board, inside the
+    committed direction (the "growth support" signal: strong edges mean the
+    card has historically finished better alongside exactly this board)."""
+    if not card_id or not comp:
+        return 0.0
+    edges = _synergy_table().get(comp, {}).get(card_id) or {}
+    if not edges:
+        return 0.0
+    total = sum(e["lift"] for c in board_ids if (e := edges.get(c or ""))
+                and e.get("sig"))
+    return SYNERGY_W * total
+
 _TRIBES = ("beast", "dragon", "mech", "murloc", "undead", "demon",
            "elemental", "pirate", "quilboar")
 
@@ -351,6 +384,10 @@ def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: i
                 elif scout is None or scout >= SCOUT_BEHIND:
                     score -= OFFCOMP_TAX   # off-comp tax (waived when behind)
                     why.append("off-comp")
+                syn = synergy_bonus(card.get("id"), board_ids, comp)
+                if syn:
+                    score += syn
+                    why.append(f"synergy {syn:+.1f}")
             hit = t & buy_tribe
             if hit:
                 score += 8
