@@ -6,19 +6,25 @@
 ## 架构
 
 ```
+对局开始: 英雄二选一 ← 经验英雄表(115 英雄 × 64 局 bot 实测 = 7360 局)
 对局中,每回合一次(热路径,~1s,零 API 成本):
-  代码: view → facts(精确事实) → when 预筛记忆库 → ≤16 条候选
+  代码: view → facts(精确事实)→ 成型方向决策(turn 4–6 定部族,comp.py)
+  代码: 合法动作打分(成型买分/外族税;引擎文本值只在承诺方向内计)
+  代码: when 预筛记忆库 → ≤16 条候选
   Nimble(本地 9B): 8 条适用性 noul + 1 条优先级 choice(带概率)
-  代码: 命中记忆的 bias 注入动作评分 → 合法动作打分
+  代码: 命中记忆的 bias 注入动作评分
   引擎: 站位用 combat_preview 前瞻裁决(免费、毫秒级)
+  饰品选择 ← 经验饰品表(235 条,n≥10 接管 186 条,余回退文本启发)
 
 对局结束(冷路径,每局 1 次 API):
   deepseek: 对局日志 + 现有记忆 → ≤3 条候选三元组
-  验证门: 新旧记忆集各打 N 局(同种子),均值提升 ≥ 阈值才入库
+  验证门: 配对 A/B(同种子 ON/OFF 各 N 局),dev+holdout 双集一致 + 显著才入库
 ```
 
-三层分工:**Nimble 管判断、deepseek 管生成、引擎管验证**。不训练任何权重;
-"训练"指阈值调优(config.json)与记忆内容的门控迭代。
+三层分工:**Nimble 管判断、deepseek 管生成、引擎管验证**;英雄表/饰品表/价值模型
+来自环境自博弈统计与拟合(Phase 2"环境数据训练"),不是权重学习。
+诚实备注:记忆层目前是二阶杠杆(bias 幅值扫描无效;蒸馏第一批 9 条候选全被门
+否决)——见路线图⑥。
 
 ## 记忆三元组
 
@@ -49,13 +55,24 @@ leeagent/
   nimble.py       System One 客户端(自动拆分超限问题)
   retrieval.py    热路径:预筛 → Nimble 批量判适用
   lookahead.py    combat_preview 站位前瞻
-  policy.py       合法动作评分 + 记忆 bias
+  comp.py         成型模型:部族方向决策 + 承诺感知买分
+  policy.py       合法动作评分 + 记忆 bias(消费成型方向与数据表)
   agent.py        单席位驱动(其余 7 席脚本 bot)
   generate.py     冷路径:deepseek 蒸馏候选记忆
   gate.py         A/B 验证门
+data/
+  hero_table.json     经验英雄表(115 英雄 × 64 局 = 7360 局)
+  trinket_table.json  经验饰品表(235 饰品,n≥10 接管 186 条)
+  value_model.txt     LightGBM 价值模型(v2;bench 混合制:初筛 top-2 + rollout)
+  trajectories.npz    自博弈轨迹(价值模型训练数据)
 memories/seed.jsonl   24 条种子记忆(已过 2048-token 预算实测)
-scripts/play_one.py   跑一局,打印每回合命中与成本
-scripts/run_gate.py   A/B 验证门跑批
+scripts/
+  play_one.py phase1_run.py                 单局 / 批量对局
+  hero_table.py trinket_table.py            数据表构建(96 核并行)
+  trinket_gate.py run_gate.py run_gate2.py  配对验证门(per-seed 全量落盘)
+  gen_trajectories.py train_value.py        价值模型管线
+  bench_bridge.py                           TavernBench 桥接
+  param_sweep.py comp_sweep.py calibrate.py feature_ablation.py  调参/校准/消融
 tests/                纯逻辑测试 + (可选)Nimble 联测
 ```
 
@@ -77,11 +94,17 @@ tests/                纯逻辑测试 + (可选)Nimble 联测
 
 ## 路线图
 
-当前状态:policy v16 前四率 64%(seeds 1200–1299,bot 参照 59%)。
+当前状态(2026-11-03,policy v18 = v16 + 英雄表 K64 + 成型模型 + 饰品表):
+前四率 **~66%**(饰品表门 ON 臂 300 局合并 65.7%;最新单次 gym 70% @ seeds
+1400–1499;bot 参照 59%)。TavernBench:play **0.87**(全场第二,仅次
+TavernAgent 0.91)、selection 0.68、strategy 0.30。
 详细的 70%+ 演进路线(优先级/预期增益/把握度/已证伪方向)见
 [docs/LEEAGENT_ROADMAP.md](../docs/LEEAGENT_ROADMAP.md)。
 
 - **Phase 0(已完成)**: 种子记忆 + 热路径跑通,零训练基线。
-- **Phase 1(已完成)**: 校准驱动迁移 + 阈值训练,v16 达成前四 64%。
-- **Phase 2(当前)**: 冷路径迭代(蒸馏 → 门 → 入库)+ 路线图第一/二梯队。
+- **Phase 1(已完成)**: 校准驱动迁移 + 阈值训练,v16 前四 64%(seeds 1200–1299)。
+- **Phase 2(进行中)**: 环境数据训练——① 英雄表 K64、② 饰品表、③ 成型模型
+  已采纳;⑦ 价值模型 v1(bench 混合制)采纳,v2 加特征证伪(RMSE 0.516 vs
+  0.506,墙是隐藏信息);记忆冷路径蒸馏第一批 9 条候选全被门否决,待动词
+  词表扩展后重试。
 - 评测: TavernBench 桥接(states.jsonl.gz → 局面 → LeeAgent 决策 → 答案格式)。
