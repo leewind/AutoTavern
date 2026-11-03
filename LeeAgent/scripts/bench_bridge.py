@@ -184,6 +184,31 @@ def rollout_unit(args):
     return rid, k, None
 
 
+def rules_answer(rid, prompt, client, model):
+    """One text-model call for a rules/economy task. The task prompt carries
+    the rules summary, the state, the card rules and the answer format; we
+    only add a generic JSON-compliance instruction — no per-task tuning."""
+    import json
+    import re
+    t = time.time()
+    sys_msg = ("You answer Hearthstone Battlegrounds rules questions. Reason "
+               "step by step, then output ONLY the final answer as a single "
+               "JSON object in the exact '## Answer format' given in the task.")
+    try:
+        rsp = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "system", "content": sys_msg},
+                      {"role": "user", "content": prompt}],
+            max_tokens=1500, temperature=0.0,
+            extra_body={"thinking": {"type": "disabled"}})
+        text = rsp.choices[0].message.content or ""
+        m = re.search(r"\{.*\}", text, re.S)
+        ans = json.loads(m.group(0))["answer"] if m else None
+        return rid, ans, time.time() - t
+    except Exception:
+        return rid, None, time.time() - t
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sims", type=int, default=512)
@@ -359,6 +384,30 @@ def main():
         else:                                      # D2/D4: option index
             answers[rid] = {"answer": row["map"][str(best)]}
     print(f"rollout tasks: {len(best_by_task)} done ({time.time()-t0:.0f}s)", flush=True)
+
+    # -- rules/economy tasks: no executable state, ask the text model ------
+    rule_scen = ("R1", "R3", "R4", "R5", "R6", "R7", "E1", "E2", "E4", "E5")
+    rule_ids = [rid for rid in labels
+                if rid.split("-")[0] in rule_scen and rid not in answers]
+    if rule_ids:
+        from concurrent.futures import ThreadPoolExecutor
+        from leeagent.generate import BENCH_ENV_FILE, read_env
+        from openai import OpenAI
+        env = read_env(BENCH_ENV_FILE)
+        client = OpenAI(api_key=env.get("API_KEY"),
+                        base_url=(env.get("API_BASE") or "").rstrip("/") or None,
+                        max_retries=2)
+        model = env.get("MODEL", "deepseek-chat")
+        t0r = time.time()
+        with ThreadPoolExecutor(8) as ex:
+            futs = [ex.submit(rules_answer, rid, prompts[rid]["prompt"],
+                              client, model) for rid in rule_ids]
+            for f in futs:
+                rid, ans, _ = f.result()
+                if ans is not None:
+                    answers[rid] = {"answer": ans}
+        print(f"rules tasks: {len(rule_ids)} asked, {sum(1 for r in rule_ids if r in answers)} "
+              f"answered ({time.time()-t0r:.0f}s)", flush=True)
 
     # -- write answers ----------------------------------------------------
     out = ROOT / "runs" / "bench_answers.jsonl"

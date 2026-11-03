@@ -94,22 +94,22 @@
 {"id": "D5-005", "model": "leeagent", "response": "{\"answer\": 1}", "latency_s": 0.0, "error": null}
 {"id": "D5-006", "model": "leeagent", "response": "{\"answer\": 0}", "latency_s": 0.0, "error": null}
 {"id": "D5-007", "model": "leeagent", "response": "{\"answer\": 2}", "latency_s": 0.0, "error": null}
-{"id": "E1-000", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E1-001", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E1-002", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E1-003", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E1-004", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E1-005", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E1-006", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E1-007", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E2-000", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E2-001", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E2-002", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E2-003", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E2-004", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E2-005", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E2-006", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E2-007", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
+{"id": "E1-000", "model": "leeagent", "response": "{\"answer\": 5}", "latency_s": 0.0, "error": null}
+{"id": "E1-001", "model": "leeagent", "response": "{\"answer\": 9}", "latency_s": 0.0, "error": null}
+{"id": "E1-002", "model": "leeagent", "response": "{\"answer\": 2}", "latency_s": 0.0, "error": null}
+{"id": "E1-003", "model": "leeagent", "response": "{\"answer\": 7}", "latency_s": 0.0, "error": null}
+{"id": "E1-004", "model": "leeagent", "response": "{\"answer\": 3}", "latency_s": 0.0, "error": null}
+{"id": "E1-005", "model": "leeagent", "response": "{\"answer\": 5}", "latency_s": 0.0, "error": null}
+{"id": "E1-006", "model": "leeagent", "response": "{\"answer\": 2}", "latency_s": 0.0, "error": null}
+{"id": "E1-007", "model": "leeagent", "response": "{\"answer\": 5}", "latency_s": 0.0, "error": null}
+{"id": "E2-000", "model": "leeagent", "response": "{\"answer\": 12}", "latency_s": 0.0, "error": null}
+{"id": "E2-001", "model": "leeagent", "response": "{\"answer\": 10}", "latency_s": 0.0, "error": null}
+{"id": "E2-002", "model": "leeagent", "response": "{\"answer\": 10}", "latency_s": 0.0, "error": null}
+{"id": "E2-003", "model": "leeagent", "response": "{\"answer\": 4}", "latency_s": 0.0, "error": null}
+{"id": "E2-004", "model": "leeagent", "response": "{\"answer\": 6}", "latency_s": 0.0, "error": null}
+{"id": "E2-005", "model": "leeagent", "response": "{\"answer\": 10}", "latency_s": 0.0, "error": null}
+{"id": "E2-006", "model": "leeagent", "response": "{\"answer\": 4}", "latency_s": 0.0, "error": null}
+{"id": "E2-007", "model": "leeagent", "response": "{\"answer\": 9}", "latency_s": 0.0, "error": null}
 {"id": "E3-000", "model": "leeagent", "response": "{\"answer\": [1, 2]}", "latency_s": 0.0, "error": null}
 {"id": "E3-001", "model": "leeagent", "response": "{\"answer\": [2, 4, 1]}", "latency_s": 0.0, "error": null}
 {"id": "E3-002", "model": "leeagent", "response": "{\"answer\": [1, 4]}", "latency_s": 0.0, "error": null}
@@ -118,22 +118,22 @@
 {"id": "E3-005", "model": "leeagent", "response": "{\"answer\": [2, 1]}", "latency_s": 0.0, "error": null}
 {"id": "E3-006", "model": "leeagent", "response": "{\"answer\": [0, 1]}", "latency_s": 0.0, "error": null}
 {"id": "E3-007", "model": "leeagent", "response": "{\"answer\": [3, 2, 4]}", "latency_s": 0.0, "error": null}
-{"id": "E4-000", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E4-001", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E4-002", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E4-003", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E4-004", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E4-005", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E4-006", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E4-007", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E5-000", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E5-001", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E5-002", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E5-003", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
+{"id": "E4-000", "model": "leeagent", "response": "{\"answer\": \"no\"}", "latency_s": 0.0, "error": null}
+{"id": "E4-001", "model": "leeagent", "response": "{\"answer\": \"yes\"}", "latency_s": 0.0, "error": null}
+{"id": "E4-002", "model": "leeagent", "response": "{\"answer\": \"yes\"}", "latency_s": 0.0, "error": null}
+{"id": "E4-003", "model": "leeagent", "response": "{\"answer\": \"yes\"}", "latency_s": 0.0, "error": null}
+{"id": "E4-004", "model": "leeagent", "response": "{\"answer\": \"no\"}", "latency_s": 0.0, "error": null}
+{"id": "E4-005", "model": "leeagent", "response": "{\"answer\": \"yes\"}", "latency_s": 0.0, "error": null}
+{"id": "E4-006", "model": "leeagent", "response": "{\"answer\": \"yes\"}", "latency_s": 0.0, "error": null}
+{"id": "E4-007", "model": "leeagent", "response": "{\"answer\": \"no\"}", "latency_s": 0.0, "error": null}
+{"id": "E5-000", "model": "leeagent", "response": "{\"answer\": 4}", "latency_s": 0.0, "error": null}
+{"id": "E5-001", "model": "leeagent", "response": "{\"answer\": 0}", "latency_s": 0.0, "error": null}
+{"id": "E5-002", "model": "leeagent", "response": "{\"answer\": 0}", "latency_s": 0.0, "error": null}
+{"id": "E5-003", "model": "leeagent", "response": "{\"answer\": 4}", "latency_s": 0.0, "error": null}
 {"id": "E5-004", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
 {"id": "E5-005", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E5-006", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "E5-007", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
+{"id": "E5-006", "model": "leeagent", "response": "{\"answer\": 3}", "latency_s": 0.0, "error": null}
+{"id": "E5-007", "model": "leeagent", "response": "{\"answer\": 5}", "latency_s": 0.0, "error": null}
 {"id": "N1-000", "model": "leeagent", "response": "{\"answer\": \"B\"}", "latency_s": 0.0, "error": null}
 {"id": "N1-001", "model": "leeagent", "response": "{\"answer\": \"C\"}", "latency_s": 0.0, "error": null}
 {"id": "N1-002", "model": "leeagent", "response": "{\"answer\": \"A\"}", "latency_s": 0.0, "error": null}
@@ -270,14 +270,14 @@
 {"id": "P5-005", "model": "leeagent", "response": "{\"answer\": \"D\"}", "latency_s": 0.0, "error": null}
 {"id": "P5-006", "model": "leeagent", "response": "{\"answer\": \"C\"}", "latency_s": 0.0, "error": null}
 {"id": "P5-007", "model": "leeagent", "response": "{\"answer\": \"A\"}", "latency_s": 0.0, "error": null}
-{"id": "R1-000", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R1-001", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R1-002", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R1-003", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R1-004", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R1-005", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R1-006", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R1-007", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
+{"id": "R1-000", "model": "leeagent", "response": "{\"answer\": [\"B\", \"D\", \"F\"]}", "latency_s": 0.0, "error": null}
+{"id": "R1-001", "model": "leeagent", "response": "{\"answer\": [\"A\", \"C\", \"E\", \"F\"]}", "latency_s": 0.0, "error": null}
+{"id": "R1-002", "model": "leeagent", "response": "{\"answer\": [\"D\", \"F\"]}", "latency_s": 0.0, "error": null}
+{"id": "R1-003", "model": "leeagent", "response": "{\"answer\": [\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]}", "latency_s": 0.0, "error": null}
+{"id": "R1-004", "model": "leeagent", "response": "{\"answer\": [\"A\", \"C\", \"D\", \"E\", \"F\"]}", "latency_s": 0.0, "error": null}
+{"id": "R1-005", "model": "leeagent", "response": "{\"answer\": [\"B\", \"C\", \"E\"]}", "latency_s": 0.0, "error": null}
+{"id": "R1-006", "model": "leeagent", "response": "{\"answer\": [\"A\", \"B\", \"C\", \"D\", \"F\"]}", "latency_s": 0.0, "error": null}
+{"id": "R1-007", "model": "leeagent", "response": "{\"answer\": [\"A\", \"C\", \"E\"]}", "latency_s": 0.0, "error": null}
 {"id": "R2-000", "model": "leeagent", "response": "{\"answer\": \"win\"}", "latency_s": 0.0, "error": null}
 {"id": "R2-001", "model": "leeagent", "response": "{\"answer\": \"tie\"}", "latency_s": 0.0, "error": null}
 {"id": "R2-002", "model": "leeagent", "response": "{\"answer\": \"loss\"}", "latency_s": 0.0, "error": null}
@@ -286,46 +286,46 @@
 {"id": "R2-005", "model": "leeagent", "response": "{\"answer\": \"win\"}", "latency_s": 0.0, "error": null}
 {"id": "R2-006", "model": "leeagent", "response": "{\"answer\": \"win\"}", "latency_s": 0.0, "error": null}
 {"id": "R2-007", "model": "leeagent", "response": "{\"answer\": \"loss\"}", "latency_s": 0.0, "error": null}
-{"id": "R3-000", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R3-001", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R3-002", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R3-003", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R3-004", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R3-005", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R3-006", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R3-007", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R4-000", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R4-001", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R4-002", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R4-003", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
+{"id": "R3-000", "model": "leeagent", "response": "{\"answer\": [[1, 3], [2, 1], [3, 4], [1, 1], [4, 5]]}", "latency_s": 0.0, "error": null}
+{"id": "R3-001", "model": "leeagent", "response": "{\"answer\": [[3, 8], [1, 4], [7, 7], [3, 3], [3, 4]]}", "latency_s": 0.0, "error": null}
+{"id": "R3-002", "model": "leeagent", "response": "{\"answer\": [[4, 5], [3, 2], [8, 8], [2, 8], [3, 4]]}", "latency_s": 0.0, "error": null}
+{"id": "R3-003", "model": "leeagent", "response": "{\"answer\": [[4, 4], [6, 8], [2, 2], [3, 6], [2, 5]]}", "latency_s": 0.0, "error": null}
+{"id": "R3-004", "model": "leeagent", "response": "{\"answer\": [[3, 8], [5, 6], [2, 1], [3, 3]]}", "latency_s": 0.0, "error": null}
+{"id": "R3-005", "model": "leeagent", "response": "{\"answer\": [[5, 6], [6, 6], [4, 4], [4, 8], [3, 4]]}", "latency_s": 0.0, "error": null}
+{"id": "R3-006", "model": "leeagent", "response": "{\"answer\": [[2, 8], [10, 10], [6, 6], [8, 8], [3, 4]]}", "latency_s": 0.0, "error": null}
+{"id": "R3-007", "model": "leeagent", "response": "{\"answer\": [[2, 6], [5, 5], [3, 1], [3, 4], [1, 4]]}", "latency_s": 0.0, "error": null}
+{"id": "R4-000", "model": "leeagent", "response": "{\"answer\": [[2, 2], [5, 4], [3, 7]]}", "latency_s": 0.0, "error": null}
+{"id": "R4-001", "model": "leeagent", "response": "{\"answer\": [[3, 3], [3, 3], [2, 2]]}", "latency_s": 0.0, "error": null}
+{"id": "R4-002", "model": "leeagent", "response": "{\"answer\": [[1, 2], [6, 8]]}", "latency_s": 0.0, "error": null}
+{"id": "R4-003", "model": "leeagent", "response": "{\"answer\": [[6, 8], [3, 4]]}", "latency_s": 0.0, "error": null}
 {"id": "R4-004", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R4-005", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R4-006", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R4-007", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R5-000", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R5-001", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R5-002", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R5-003", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R5-004", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R5-005", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R5-006", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R5-007", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R6-000", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R6-001", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R6-002", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R6-003", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R6-004", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R6-005", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R6-006", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R6-007", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R7-000", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R7-001", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R7-002", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R7-003", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R7-004", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R7-005", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R7-006", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
-{"id": "R7-007", "model": "leeagent", "response": null, "latency_s": 0.0, "error": "no state"}
+{"id": "R4-005", "model": "leeagent", "response": "{\"answer\": [[2, 3], [4, 4], [3, 5], [4, 4]]}", "latency_s": 0.0, "error": null}
+{"id": "R4-006", "model": "leeagent", "response": "{\"answer\": [[4, 4], [4, 6], [2, 4], [3, 4], [1, 4]]}", "latency_s": 0.0, "error": null}
+{"id": "R4-007", "model": "leeagent", "response": "{\"answer\": [[2, 2], [3, 6]]}", "latency_s": 0.0, "error": null}
+{"id": "R5-000", "model": "leeagent", "response": "{\"answer\": [8, 12]}", "latency_s": 0.0, "error": null}
+{"id": "R5-001", "model": "leeagent", "response": "{\"answer\": [8, 8]}", "latency_s": 0.0, "error": null}
+{"id": "R5-002", "model": "leeagent", "response": "{\"answer\": [4, 10]}", "latency_s": 0.0, "error": null}
+{"id": "R5-003", "model": "leeagent", "response": "{\"answer\": [10, 2]}", "latency_s": 0.0, "error": null}
+{"id": "R5-004", "model": "leeagent", "response": "{\"answer\": [2, 2]}", "latency_s": 0.0, "error": null}
+{"id": "R5-005", "model": "leeagent", "response": "{\"answer\": [8, 10]}", "latency_s": 0.0, "error": null}
+{"id": "R5-006", "model": "leeagent", "response": "{\"answer\": [14, 18]}", "latency_s": 0.0, "error": null}
+{"id": "R5-007", "model": "leeagent", "response": "{\"answer\": [8, 6]}", "latency_s": 0.0, "error": null}
+{"id": "R6-000", "model": "leeagent", "response": "{\"answer\": [[9, 6], [13, 5]]}", "latency_s": 0.0, "error": null}
+{"id": "R6-001", "model": "leeagent", "response": "{\"answer\": [[10, 8], [4, 5], [4, 8]]}", "latency_s": 0.0, "error": null}
+{"id": "R6-002", "model": "leeagent", "response": "{\"answer\": [[8, 7], [3, 6], [3, 2]]}", "latency_s": 0.0, "error": null}
+{"id": "R6-003", "model": "leeagent", "response": "{\"answer\": [[6, 7], [3, 6], [4, 6]]}", "latency_s": 0.0, "error": null}
+{"id": "R6-004", "model": "leeagent", "response": "{\"answer\": [[10, 10], [4, 5], [3, 2]]}", "latency_s": 0.0, "error": null}
+{"id": "R6-005", "model": "leeagent", "response": "{\"answer\": [[7, 7], [10, 10], [7, 15], [8, 8], [6, 5]]}", "latency_s": 0.0, "error": null}
+{"id": "R6-006", "model": "leeagent", "response": "{\"answer\": [[3, 3], [2, 3], [3, 2], [1, 3], [6, 3]]}", "latency_s": 0.0, "error": null}
+{"id": "R6-007", "model": "leeagent", "response": "{\"answer\": [[20, 20], [3, 4], [4, 4], [1, 3]]}", "latency_s": 0.0, "error": null}
+{"id": "R7-000", "model": "leeagent", "response": "{\"answer\": [7, 3]}", "latency_s": 0.0, "error": null}
+{"id": "R7-001", "model": "leeagent", "response": "{\"answer\": [4, 6]}", "latency_s": 0.0, "error": null}
+{"id": "R7-002", "model": "leeagent", "response": "{\"answer\": [7, 6]}", "latency_s": 0.0, "error": null}
+{"id": "R7-003", "model": "leeagent", "response": "{\"answer\": [1, 4]}", "latency_s": 0.0, "error": null}
+{"id": "R7-004", "model": "leeagent", "response": "{\"answer\": [5, 7]}", "latency_s": 0.0, "error": null}
+{"id": "R7-005", "model": "leeagent", "response": "{\"answer\": [3, 7]}", "latency_s": 0.0, "error": null}
+{"id": "R7-006", "model": "leeagent", "response": "{\"answer\": [4, 6]}", "latency_s": 0.0, "error": null}
+{"id": "R7-007", "model": "leeagent", "response": "{\"answer\": [7, 13]}", "latency_s": 0.0, "error": null}
 {"id": "T1-000", "model": "leeagent", "response": "{\"answer\": 3}", "latency_s": 0.0, "error": null}
 {"id": "T1-001", "model": "leeagent", "response": "{\"answer\": 0}", "latency_s": 0.0, "error": null}
 {"id": "T1-002", "model": "leeagent", "response": "{\"answer\": 2}", "latency_s": 0.0, "error": null}
