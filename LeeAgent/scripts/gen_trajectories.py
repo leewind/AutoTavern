@@ -21,13 +21,55 @@ TRIBES = ("BEAST", "DRAGON", "MECH", "MURLOC", "UNDEAD",
 
 
 def feat_row(view: dict, facts: dict, comp) -> list:
-    board = view["me"].get("board") or []
+    """v2: the v1 scalars plus hand/shop/board/opp-scout/comp content."""
+    me = view["me"]
+    board = me.get("board") or []
+    hand = me.get("hand") or []
+    shop = me.get("shop") or []
     atk = sum(m.get("atk", 0) for m in board)
     hp = sum(m.get("hp", 0) for m in board)
+
+    def tier_hist(cards):
+        h = [0] * 7
+        for c in cards:
+            t = c.get("tier") or 0
+            if 0 <= t <= 6:
+                h[t] += 1
+        return h
+
+    hand_minions = [c for c in hand if c.get("type") != "spell"]
+    hand_spells = len(hand) - len(hand_minions)
+    kw = {"TAUNT": 0, "DIVINE_SHIELD": 0, "VENOMOUS": 0, "REBORN": 0, "WINDFURY": 0}
+    for m in board:
+        for k in kw:
+            if k in (m.get("keywords") or []):
+                kw[k] += 1
+    nxt = facts.get("next_opponent")
+    entry = next((o for o in view.get("opponents") or [] if o.get("id") == nxt), None) \
+        if nxt is not None else None
+    seen = (entry or {}).get("seen_board") or []
+    opp_n = len(seen)
+    opp_atk = sum(m.get("atk", 0) for m in seen) / 10.0
+    comp_count = facts["tribes"].get(comp, 0) if comp else 0
+    comp_engines = sum(1 for m in board if comp in [
+        r.upper().replace("MECHANICAL", "MECH") for r in (m.get("races") or [])]
+        and any(k in (m.get("text") or "").lower()
+                for k in ("whenever", "each turn", "after you", "gains +"))) if comp else 0
+
     row = [facts["turn"], facts["tier"], facts["gold"], facts["health"], facts["armor"],
            facts["hand_count"], facts["board_count"], atk / 10.0, hp / 10.0,
            facts["num_alive"], facts["upgrade_price"] or 0, facts["win_streak"],
-           1.0 if facts["hand_full"] else 0.0, 1.0 if facts["board_full"] else 0.0]
+           1.0 if facts["hand_full"] else 0.0, 1.0 if facts["board_full"] else 0.0,
+           len(hand_minions), hand_spells,
+           1.0 if facts["hand_dup_in_shop"] else 0.0,
+           max((c.get("atk", 0) + c.get("hp", 0) + 3 * (c.get("tier") or 0)
+                for c in shop if c.get("type") != "spell"), default=0) / 10.0,
+           kw["TAUNT"], kw["DIVINE_SHIELD"], kw["VENOMOUS"], kw["REBORN"], kw["WINDFURY"],
+           opp_n, opp_atk,
+           1.0 if facts["opp_seen_more"] else 0.0, 1.0 if facts["next_is_ghost"] else 0.0,
+           comp_count, comp_engines]
+    row += tier_hist(hand)
+    row += tier_hist(shop)
     row += [facts["tribes"].get(t, 0) for t in TRIBES]
     row += [1.0 if comp == t else 0.0 for t in TRIBES]
     return row

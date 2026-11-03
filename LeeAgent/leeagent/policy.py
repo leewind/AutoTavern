@@ -85,7 +85,7 @@ def decode(i: int):
 
 _PREMIUM_KW = {"DIVINE_SHIELD", "TAUNT", "REBORN", "WINDFURY", "VENOMOUS", "POISONOUS"}
 
-# empirical hero strength (scripts/hero_table.py: 115 heroes x 16 v16 games)
+# empirical hero strength (scripts/hero_table.py: 115 heroes x 64 v16 games)
 _HERO_TABLE = None
 
 
@@ -97,6 +97,20 @@ def _hero_table() -> dict:
         p = Path(__file__).resolve().parents[1] / "data" / "hero_table.json"
         _HERO_TABLE = json.loads(p.read_text()) if p.is_file() else {}
     return _HERO_TABLE
+
+
+# empirical trinket strength (scripts/trinket_table.py: window-matched forcing)
+_TRINKET_TABLE = None
+
+
+def _trinket_table() -> dict:
+    global _TRINKET_TABLE
+    if _TRINKET_TABLE is None:
+        import json
+        from pathlib import Path
+        p = Path(__file__).resolve().parents[1] / "data" / "trinket_table.json"
+        _TRINKET_TABLE = json.loads(p.read_text()) if p.is_file() else {}
+    return _TRINKET_TABLE
 
 _TRIBES = ("beast", "dragon", "mech", "murloc", "undead", "demon",
            "elemental", "pirate", "quilboar")
@@ -169,6 +183,9 @@ def choose_pending(legal: list[int], view: dict) -> int:
 
     def opt_score(o):
         if pending.get("kind") == "trinket":
+            t = _trinket_table().get(o.get("id") or "")
+            if t and t.get("n", 0) >= 10:          # empirical beats text heuristics
+                return 100.0 - t["mean_place"]
             from .facts import extract_facts
             return trinket_score(o, extract_facts(view))
         if o.get("type") == "spell" or not o.get("tier"):

@@ -1,0 +1,1177 @@
+{
+ "BG36_MagicItem_414": {
+  "kind": "lesser",
+  "n": 76,
+  "mean_place": 1.013
+ },
+ "BG30_MagicItem_301": {
+  "kind": "lesser",
+  "n": 11,
+  "mean_place": 1.091
+ },
+ "BG30_MagicItem_924": {
+  "kind": "lesser",
+  "n": 19,
+  "mean_place": 1.211
+ },
+ "BG35_MagicItem_850": {
+  "kind": "lesser",
+  "n": 19,
+  "mean_place": 1.211
+ },
+ "BG35_MagicItem_150": {
+  "kind": "lesser",
+  "n": 4,
+  "mean_place": 1.25
+ },
+ "BG30_MagicItem_411": {
+  "kind": "lesser",
+  "n": 7,
+  "mean_place": 1.286
+ },
+ "BG30_MagicItem_437": {
+  "kind": "lesser",
+  "n": 12,
+  "mean_place": 1.333
+ },
+ "BG35_MagicItem_815": {
+  "kind": "lesser",
+  "n": 15,
+  "mean_place": 1.333
+ },
+ "BG36_MagicItem_812": {
+  "kind": "lesser",
+  "n": 3,
+  "mean_place": 1.333
+ },
+ "BG32_MagicItem_300": {
+  "kind": "lesser",
+  "n": 13,
+  "mean_place": 1.462
+ },
+ "BG35_MagicItem_801": {
+  "kind": "lesser",
+  "n": 30,
+  "mean_place": 1.467
+ },
+ "BG35_MagicItem_152": {
+  "kind": "lesser",
+  "n": 2,
+  "mean_place": 1.5
+ },
+ "BG36_MagicItem_407": {
+  "kind": "lesser",
+  "n": 20,
+  "mean_place": 1.5
+ },
+ "BG36_MagicItem_408": {
+  "kind": "lesser",
+  "n": 19,
+  "mean_place": 1.526
+ },
+ "BG30_MagicItem_847": {
+  "kind": "lesser",
+  "n": 70,
+  "mean_place": 1.529
+ },
+ "BG30_MagicItem_547": {
+  "kind": "lesser",
+  "n": 11,
+  "mean_place": 1.545
+ },
+ "BG36_MagicItem_390": {
+  "kind": "lesser",
+  "n": 37,
+  "mean_place": 1.568
+ },
+ "BG32_MagicItem_271": {
+  "kind": "lesser",
+  "n": 73,
+  "mean_place": 1.589
+ },
+ "BG35_MagicItem_890": {
+  "kind": "lesser",
+  "n": 30,
+  "mean_place": 1.6
+ },
+ "BG36_MagicItem_410": {
+  "kind": "lesser",
+  "n": 10,
+  "mean_place": 1.6
+ },
+ "BG36_MagicItem_302": {
+  "kind": "lesser",
+  "n": 41,
+  "mean_place": 1.61
+ },
+ "BG36_MagicItem_852": {
+  "kind": "lesser",
+  "n": 35,
+  "mean_place": 1.629
+ },
+ "BG30_MagicItem_900": {
+  "kind": "lesser",
+  "n": 20,
+  "mean_place": 1.65
+ },
+ "BG36_MagicItem_801": {
+  "kind": "lesser",
+  "n": 3,
+  "mean_place": 1.667
+ },
+ "BG30_MagicItem_994": {
+  "kind": "lesser",
+  "n": 80,
+  "mean_place": 1.675
+ },
+ "BG35_MagicItem_872": {
+  "kind": "lesser",
+  "n": 13,
+  "mean_place": 1.692
+ },
+ "BG30_MagicItem_707": {
+  "kind": "lesser",
+  "n": 82,
+  "mean_place": 1.707
+ },
+ "BG30_MagicItem_700": {
+  "kind": "lesser",
+  "n": 61,
+  "mean_place": 1.738
+ },
+ "BG35_MagicItem_302": {
+  "kind": "lesser",
+  "n": 4,
+  "mean_place": 1.75
+ },
+ "BG30_MagicItem_705": {
+  "kind": "lesser",
+  "n": 80,
+  "mean_place": 1.775
+ },
+ "BG35_MagicItem_818": {
+  "kind": "lesser",
+  "n": 80,
+  "mean_place": 1.775
+ },
+ "BG30_MagicItem_420": {
+  "kind": "lesser",
+  "n": 86,
+  "mean_place": 1.779
+ },
+ "BG30_MagicItem_423": {
+  "kind": "lesser",
+  "n": 73,
+  "mean_place": 1.781
+ },
+ "BG30_MagicItem_430": {
+  "kind": "lesser",
+  "n": 79,
+  "mean_place": 1.785
+ },
+ "BG32_MagicItem_350": {
+  "kind": "lesser",
+  "n": 39,
+  "mean_place": 1.795
+ },
+ "BG32_MagicItem_400": {
+  "kind": "lesser",
+  "n": 44,
+  "mean_place": 1.795
+ },
+ "BG32_MagicItem_278": {
+  "kind": "lesser",
+  "n": 5,
+  "mean_place": 1.8
+ },
+ "BG32_MagicItem_858": {
+  "kind": "lesser",
+  "n": 70,
+  "mean_place": 1.814
+ },
+ "BG32_MagicItem_360": {
+  "kind": "lesser",
+  "n": 12,
+  "mean_place": 1.833
+ },
+ "BG36_MagicItem_301": {
+  "kind": "lesser",
+  "n": 37,
+  "mean_place": 1.865
+ },
+ "BG32_MagicItem_361": {
+  "kind": "lesser",
+  "n": 80,
+  "mean_place": 1.887
+ },
+ "BG32_MagicItem_951": {
+  "kind": "lesser",
+  "n": 36,
+  "mean_place": 1.889
+ },
+ "BG32_MagicItem_428": {
+  "kind": "lesser",
+  "n": 75,
+  "mean_place": 1.907
+ },
+ "BG35_MagicItem_816": {
+  "kind": "lesser",
+  "n": 76,
+  "mean_place": 1.908
+ },
+ "BG32_MagicItem_817": {
+  "kind": "lesser",
+  "n": 78,
+  "mean_place": 1.91
+ },
+ "BG36_MagicItem_220": {
+  "kind": "lesser",
+  "n": 47,
+  "mean_place": 1.915
+ },
+ "BG36_MagicItem_200": {
+  "kind": "lesser",
+  "n": 36,
+  "mean_place": 1.917
+ },
+ "BG35_MagicItem_871": {
+  "kind": "lesser",
+  "n": 14,
+  "mean_place": 1.929
+ },
+ "BG35_MagicItem_823": {
+  "kind": "lesser",
+  "n": 79,
+  "mean_place": 1.937
+ },
+ "BG36_MagicItem_411": {
+  "kind": "lesser",
+  "n": 78,
+  "mean_place": 1.949
+ },
+ "BG35_MagicItem_814": {
+  "kind": "lesser",
+  "n": 70,
+  "mean_place": 1.957
+ },
+ "BG36_MagicItem_609": {
+  "kind": "lesser",
+  "n": 78,
+  "mean_place": 1.974
+ },
+ "BG30_MagicItem_425": {
+  "kind": "lesser",
+  "n": 82,
+  "mean_place": 2.0
+ },
+ "BG30_MagicItem_544": {
+  "kind": "lesser",
+  "n": 19,
+  "mean_place": 2.0
+ },
+ "BG32_MagicItem_416": {
+  "kind": "lesser",
+  "n": 55,
+  "mean_place": 2.018
+ },
+ "BG36_MagicItem_611": {
+  "kind": "greater",
+  "n": 54,
+  "mean_place": 2.019
+ },
+ "BG30_MagicItem_891": {
+  "kind": "lesser",
+  "n": 84,
+  "mean_place": 2.024
+ },
+ "BG30_MagicItem_902": {
+  "kind": "lesser",
+  "n": 21,
+  "mean_place": 2.048
+ },
+ "BG30_MagicItem_962": {
+  "kind": "lesser",
+  "n": 19,
+  "mean_place": 2.053
+ },
+ "BG36_MagicItem_424": {
+  "kind": "lesser",
+  "n": 41,
+  "mean_place": 2.098
+ },
+ "BG35_MagicItem_306": {
+  "kind": "lesser",
+  "n": 10,
+  "mean_place": 2.1
+ },
+ "BG30_MagicItem_841": {
+  "kind": "lesser",
+  "n": 36,
+  "mean_place": 2.111
+ },
+ "BG30_MagicItem_434": {
+  "kind": "lesser",
+  "n": 85,
+  "mean_place": 2.129
+ },
+ "BG36_MagicItem_400": {
+  "kind": "lesser",
+  "n": 30,
+  "mean_place": 2.133
+ },
+ "BG36_MagicItem_203": {
+  "kind": "lesser",
+  "n": 35,
+  "mean_place": 2.143
+ },
+ "BG30_MagicItem_998": {
+  "kind": "lesser",
+  "n": 33,
+  "mean_place": 2.152
+ },
+ "BG30_MagicItem_713": {
+  "kind": "lesser",
+  "n": 13,
+  "mean_place": 2.154
+ },
+ "BG30_MagicItem_804": {
+  "kind": "lesser",
+  "n": 29,
+  "mean_place": 2.172
+ },
+ "BG36_MagicItem_811": {
+  "kind": "lesser",
+  "n": 80,
+  "mean_place": 2.175
+ },
+ "BG30_MagicItem_435": {
+  "kind": "lesser",
+  "n": 82,
+  "mean_place": 2.183
+ },
+ "BG32_MagicItem_808": {
+  "kind": "lesser",
+  "n": 10,
+  "mean_place": 2.2
+ },
+ "BG35_MagicItem_817": {
+  "kind": "lesser",
+  "n": 5,
+  "mean_place": 2.2
+ },
+ "BG36_MagicItem_403": {
+  "kind": "lesser",
+  "n": 25,
+  "mean_place": 2.2
+ },
+ "BG30_MagicItem_703": {
+  "kind": "lesser",
+  "n": 81,
+  "mean_place": 2.21
+ },
+ "BG36_MagicItem_206": {
+  "kind": "lesser",
+  "n": 95,
+  "mean_place": 2.211
+ },
+ "BG36_MagicItem_404": {
+  "kind": "lesser",
+  "n": 9,
+  "mean_place": 2.222
+ },
+ "BG35_MagicItem_851": {
+  "kind": "lesser",
+  "n": 20,
+  "mean_place": 2.25
+ },
+ "BG36_MagicItem_810": {
+  "kind": "lesser",
+  "n": 4,
+  "mean_place": 2.25
+ },
+ "BG36_MagicItem_820": {
+  "kind": "lesser",
+  "n": 12,
+  "mean_place": 2.25
+ },
+ "BG35_MagicItem_840": {
+  "kind": "lesser",
+  "n": 39,
+  "mean_place": 2.256
+ },
+ "BG35_MagicItem_434": {
+  "kind": "lesser",
+  "n": 11,
+  "mean_place": 2.273
+ },
+ "BG35_MagicItem_931": {
+  "kind": "lesser",
+  "n": 92,
+  "mean_place": 2.293
+ },
+ "BG36_MagicItem_211": {
+  "kind": "lesser",
+  "n": 82,
+  "mean_place": 2.305
+ },
+ "BG32_MagicItem_957": {
+  "kind": "lesser",
+  "n": 16,
+  "mean_place": 2.312
+ },
+ "BG30_MagicItem_426": {
+  "kind": "lesser",
+  "n": 89,
+  "mean_place": 2.315
+ },
+ "BG36_MagicItem_371": {
+  "kind": "greater",
+  "n": 74,
+  "mean_place": 2.338
+ },
+ "BG36_MagicItem_303": {
+  "kind": "lesser",
+  "n": 38,
+  "mean_place": 2.342
+ },
+ "BG32_MagicItem_831": {
+  "kind": "lesser",
+  "n": 20,
+  "mean_place": 2.35
+ },
+ "BG30_MagicItem_706": {
+  "kind": "lesser",
+  "n": 88,
+  "mean_place": 2.352
+ },
+ "BG32_MagicItem_822": {
+  "kind": "lesser",
+  "n": 5,
+  "mean_place": 2.4
+ },
+ "BG36_MagicItem_300": {
+  "kind": "lesser",
+  "n": 36,
+  "mean_place": 2.417
+ },
+ "BG30_MagicItem_416": {
+  "kind": "lesser",
+  "n": 85,
+  "mean_place": 2.424
+ },
+ "BG36_MagicItem_302t": {
+  "kind": "greater",
+  "n": 37,
+  "mean_place": 2.459
+ },
+ "BG30_MagicItem_888": {
+  "kind": "lesser",
+  "n": 87,
+  "mean_place": 2.46
+ },
+ "BG30_MagicItem_996": {
+  "kind": "greater",
+  "n": 84,
+  "mean_place": 2.5
+ },
+ "BG36_MagicItem_423": {
+  "kind": "lesser",
+  "n": 4,
+  "mean_place": 2.5
+ },
+ "BG36_MagicItem_202": {
+  "kind": "lesser",
+  "n": 63,
+  "mean_place": 2.524
+ },
+ "BG35_MagicItem_816t": {
+  "kind": "greater",
+  "n": 86,
+  "mean_place": 2.535
+ },
+ "BG32_MagicItem_276": {
+  "kind": "lesser",
+  "n": 11,
+  "mean_place": 2.545
+ },
+ "BG32_MagicItem_367": {
+  "kind": "greater",
+  "n": 87,
+  "mean_place": 2.563
+ },
+ "BG32_MagicItem_362t": {
+  "kind": "greater",
+  "n": 79,
+  "mean_place": 2.57
+ },
+ "BG35_MagicItem_712": {
+  "kind": "greater",
+  "n": 38,
+  "mean_place": 2.579
+ },
+ "BG32_MagicItem_892": {
+  "kind": "lesser",
+  "n": 12,
+  "mean_place": 2.583
+ },
+ "BG36_MagicItem_201": {
+  "kind": "lesser",
+  "n": 12,
+  "mean_place": 2.583
+ },
+ "BG32_MagicItem_366": {
+  "kind": "greater",
+  "n": 75,
+  "mean_place": 2.613
+ },
+ "BG30_MagicItem_821": {
+  "kind": "lesser",
+  "n": 21,
+  "mean_place": 2.619
+ },
+ "BG36_MagicItem_208": {
+  "kind": "lesser",
+  "n": 93,
+  "mean_place": 2.624
+ },
+ "BG30_MagicItem_931": {
+  "kind": "lesser",
+  "n": 14,
+  "mean_place": 2.643
+ },
+ "BG35_MagicItem_931t": {
+  "kind": "greater",
+  "n": 88,
+  "mean_place": 2.659
+ },
+ "BG35_MagicItem_812": {
+  "kind": "greater",
+  "n": 81,
+  "mean_place": 2.716
+ },
+ "BG36_MagicItem_373": {
+  "kind": "greater",
+  "n": 47,
+  "mean_place": 2.723
+ },
+ "BG30_MagicItem_993": {
+  "kind": "greater",
+  "n": 78,
+  "mean_place": 2.731
+ },
+ "BG36_MagicItem_213": {
+  "kind": "greater",
+  "n": 34,
+  "mean_place": 2.735
+ },
+ "BG36_MagicItem_309": {
+  "kind": "greater",
+  "n": 87,
+  "mean_place": 2.736
+ },
+ "BG30_MagicItem_868": {
+  "kind": "lesser",
+  "n": 4,
+  "mean_place": 2.75
+ },
+ "BG32_MagicItem_807": {
+  "kind": "greater",
+  "n": 72,
+  "mean_place": 2.806
+ },
+ "BG35_MagicItem_740": {
+  "kind": "greater",
+  "n": 31,
+  "mean_place": 2.806
+ },
+ "BG30_MagicItem_410": {
+  "kind": "lesser",
+  "n": 11,
+  "mean_place": 2.818
+ },
+ "BG31_MagicItem_903": {
+  "kind": "greater",
+  "n": 46,
+  "mean_place": 2.848
+ },
+ "BG30_MagicItem_420t": {
+  "kind": "greater",
+  "n": 75,
+  "mean_place": 2.853
+ },
+ "BG32_MagicItem_284": {
+  "kind": "greater",
+  "n": 38,
+  "mean_place": 2.868
+ },
+ "BG30_MagicItem_801": {
+  "kind": "greater",
+  "n": 88,
+  "mean_place": 2.898
+ },
+ "BG35_MagicItem_823t": {
+  "kind": "greater",
+  "n": 82,
+  "mean_place": 2.902
+ },
+ "BG36_MagicItem_214": {
+  "kind": "greater",
+  "n": 64,
+  "mean_place": 2.906
+ },
+ "BG30_MagicItem_914": {
+  "kind": "lesser",
+  "n": 12,
+  "mean_place": 2.917
+ },
+ "BG36_MagicItem_610": {
+  "kind": "greater",
+  "n": 88,
+  "mean_place": 2.92
+ },
+ "BG32_MagicItem_361t": {
+  "kind": "greater",
+  "n": 79,
+  "mean_place": 2.949
+ },
+ "BG36_MagicItem_372": {
+  "kind": "greater",
+  "n": 84,
+  "mean_place": 2.964
+ },
+ "BG30_MagicItem_426t": {
+  "kind": "greater",
+  "n": 92,
+  "mean_place": 3.0
+ },
+ "BG30_MagicItem_924t": {
+  "kind": "greater",
+  "n": 20,
+  "mean_place": 3.0
+ },
+ "BG32_MagicItem_893": {
+  "kind": "lesser",
+  "n": 11,
+  "mean_place": 3.0
+ },
+ "BG32_MagicItem_901": {
+  "kind": "greater",
+  "n": 93,
+  "mean_place": 3.022
+ },
+ "BG36_MagicItem_403t": {
+  "kind": "greater",
+  "n": 36,
+  "mean_place": 3.028
+ },
+ "BG30_MagicItem_876": {
+  "kind": "greater",
+  "n": 91,
+  "mean_place": 3.044
+ },
+ "BG35_MagicItem_710": {
+  "kind": "greater",
+  "n": 22,
+  "mean_place": 3.045
+ },
+ "BG36_MagicItem_212": {
+  "kind": "greater",
+  "n": 40,
+  "mean_place": 3.05
+ },
+ "BG35_MagicItem_755": {
+  "kind": "greater",
+  "n": 57,
+  "mean_place": 3.088
+ },
+ "BG30_MagicItem_544t": {
+  "kind": "greater",
+  "n": 18,
+  "mean_place": 3.111
+ },
+ "BG36_MagicItem_402": {
+  "kind": "lesser",
+  "n": 8,
+  "mean_place": 3.125
+ },
+ "BG30_MagicItem_988": {
+  "kind": "lesser",
+  "n": 12,
+  "mean_place": 3.167
+ },
+ "BG36_MagicItem_363": {
+  "kind": "greater",
+  "n": 26,
+  "mean_place": 3.269
+ },
+ "BG30_MagicItem_981": {
+  "kind": "lesser",
+  "n": 11,
+  "mean_place": 3.273
+ },
+ "BG35_MagicItem_305": {
+  "kind": "lesser",
+  "n": 11,
+  "mean_place": 3.273
+ },
+ "BG36_MagicItem_370": {
+  "kind": "greater",
+  "n": 85,
+  "mean_place": 3.306
+ },
+ "BG32_MagicItem_821": {
+  "kind": "lesser",
+  "n": 3,
+  "mean_place": 3.333
+ },
+ "BG32_MagicItem_860": {
+  "kind": "lesser",
+  "n": 12,
+  "mean_place": 3.333
+ },
+ "BG32_MagicItem_926": {
+  "kind": "greater",
+  "n": 40,
+  "mean_place": 3.35
+ },
+ "BG35_MagicItem_850t": {
+  "kind": "greater",
+  "n": 20,
+  "mean_place": 3.35
+ },
+ "BG30_MagicItem_555": {
+  "kind": "greater",
+  "n": 18,
+  "mean_place": 3.444
+ },
+ "BG32_MagicItem_232": {
+  "kind": "greater",
+  "n": 20,
+  "mean_place": 3.45
+ },
+ "BG35_MagicItem_156": {
+  "kind": "greater",
+  "n": 20,
+  "mean_place": 3.45
+ },
+ "BG32_MagicItem_306": {
+  "kind": "greater",
+  "n": 26,
+  "mean_place": 3.462
+ },
+ "BG35_MagicItem_711": {
+  "kind": "greater",
+  "n": 19,
+  "mean_place": 3.474
+ },
+ "BG30_MagicItem_431": {
+  "kind": "greater",
+  "n": 18,
+  "mean_place": 3.5
+ },
+ "BG32_MagicItem_998": {
+  "kind": "greater",
+  "n": 20,
+  "mean_place": 3.5
+ },
+ "BG35_MagicItem_713": {
+  "kind": "greater",
+  "n": 21,
+  "mean_place": 3.524
+ },
+ "BG36_MagicItem_307": {
+  "kind": "lesser",
+  "n": 10,
+  "mean_place": 3.6
+ },
+ "BG35_MagicItem_753": {
+  "kind": "greater",
+  "n": 22,
+  "mean_place": 3.636
+ },
+ "BG35_MagicItem_930": {
+  "kind": "greater",
+  "n": 90,
+  "mean_place": 3.644
+ },
+ "BG35_MagicItem_820": {
+  "kind": "greater",
+  "n": 22,
+  "mean_place": 3.682
+ },
+ "BG30_MagicItem_952": {
+  "kind": "greater",
+  "n": 18,
+  "mean_place": 3.722
+ },
+ "BG32_MagicItem_170": {
+  "kind": "lesser",
+  "n": 4,
+  "mean_place": 3.75
+ },
+ "BG35_MagicItem_750": {
+  "kind": "greater",
+  "n": 30,
+  "mean_place": 3.767
+ },
+ "BG36_MagicItem_303t": {
+  "kind": "greater",
+  "n": 34,
+  "mean_place": 3.794
+ },
+ "BG30_MagicItem_439": {
+  "kind": "greater",
+  "n": 20,
+  "mean_place": 3.8
+ },
+ "BG30_MagicItem_951": {
+  "kind": "greater",
+  "n": 19,
+  "mean_place": 3.895
+ },
+ "BG36_MagicItem_409": {
+  "kind": "lesser",
+  "n": 11,
+  "mean_place": 4.0
+ },
+ "BG32_MagicItem_888": {
+  "kind": "greater",
+  "n": 19,
+  "mean_place": 4.105
+ },
+ "BG35_MagicItem_861": {
+  "kind": "greater",
+  "n": 16,
+  "mean_place": 4.125
+ },
+ "BG35_MagicItem_862": {
+  "kind": "greater",
+  "n": 16,
+  "mean_place": 4.125
+ },
+ "BG30_MagicItem_418": {
+  "kind": "greater",
+  "n": 24,
+  "mean_place": 4.292
+ },
+ "BG32_MagicItem_301": {
+  "kind": "greater",
+  "n": 12,
+  "mean_place": 4.333
+ },
+ "BG36_MagicItem_800": {
+  "kind": "lesser",
+  "n": 2,
+  "mean_place": 4.5
+ },
+ "BG30_MagicItem_995": {
+  "kind": "greater",
+  "n": 18,
+  "mean_place": 4.556
+ },
+ "BG36_MagicItem_215": {
+  "kind": "greater",
+  "n": 18,
+  "mean_place": 4.556
+ },
+ "BG30_MagicItem_942": {
+  "kind": "greater",
+  "n": 12,
+  "mean_place": 4.667
+ },
+ "BG32_MagicItem_363": {
+  "kind": "greater",
+  "n": 18,
+  "mean_place": 4.667
+ },
+ "BG35_MagicItem_840t": {
+  "kind": "greater",
+  "n": 18,
+  "mean_place": 4.667
+ },
+ "BG36_MagicItem_831": {
+  "kind": "greater",
+  "n": 12,
+  "mean_place": 4.667
+ },
+ "BG35_MagicItem_700": {
+  "kind": "greater",
+  "n": 10,
+  "mean_place": 4.7
+ },
+ "BG35_MagicItem_732": {
+  "kind": "greater",
+  "n": 10,
+  "mean_place": 4.7
+ },
+ "BG32_MagicItem_364": {
+  "kind": "greater",
+  "n": 18,
+  "mean_place": 4.722
+ },
+ "BG30_MagicItem_547t": {
+  "kind": "greater",
+  "n": 11,
+  "mean_place": 4.818
+ },
+ "BG30_MagicItem_886": {
+  "kind": "greater",
+  "n": 11,
+  "mean_place": 4.818
+ },
+ "BG32_MagicItem_205": {
+  "kind": "greater",
+  "n": 11,
+  "mean_place": 4.818
+ },
+ "BG36_MagicItem_217": {
+  "kind": "greater",
+  "n": 11,
+  "mean_place": 4.818
+ },
+ "BG30_MagicItem_310": {
+  "kind": "greater",
+  "n": 10,
+  "mean_place": 4.9
+ },
+ "BG32_MagicItem_925": {
+  "kind": "greater",
+  "n": 10,
+  "mean_place": 4.9
+ },
+ "BG35_MagicItem_701": {
+  "kind": "greater",
+  "n": 11,
+  "mean_place": 4.909
+ },
+ "BG36_MagicItem_850": {
+  "kind": "greater",
+  "n": 11,
+  "mean_place": 4.909
+ },
+ "BG30_MagicItem_988t": {
+  "kind": "greater",
+  "n": 9,
+  "mean_place": 5.0
+ },
+ "BG35_MagicItem_752": {
+  "kind": "greater",
+  "n": 10,
+  "mean_place": 5.0
+ },
+ "BG36_MagicItem_308": {
+  "kind": "greater",
+  "n": 9,
+  "mean_place": 5.0
+ },
+ "BG30_MagicItem_914t": {
+  "kind": "greater",
+  "n": 11,
+  "mean_place": 5.091
+ },
+ "BG36_MagicItem_216": {
+  "kind": "greater",
+  "n": 11,
+  "mean_place": 5.091
+ },
+ "BG30_MagicItem_406": {
+  "kind": "greater",
+  "n": 11,
+  "mean_place": 5.182
+ },
+ "BG32_MagicItem_270t": {
+  "kind": "greater",
+  "n": 11,
+  "mean_place": 5.182
+ },
+ "BG30_MagicItem_403": {
+  "kind": "greater",
+  "n": 10,
+  "mean_place": 5.2
+ },
+ "BG36_MagicItem_423t": {
+  "kind": "greater",
+  "n": 9,
+  "mean_place": 5.222
+ },
+ "BG35_MagicItem_733": {
+  "kind": "greater",
+  "n": 11,
+  "mean_place": 5.273
+ },
+ "BG30_MagicItem_545": {
+  "kind": "greater",
+  "n": 9,
+  "mean_place": 5.333
+ },
+ "BG35_MagicItem_741": {
+  "kind": "greater",
+  "n": 9,
+  "mean_place": 5.333
+ },
+ "BG30_MagicItem_989t": {
+  "kind": "greater",
+  "n": 9,
+  "mean_place": 5.444
+ },
+ "BG32_MagicItem_808t": {
+  "kind": "greater",
+  "n": 9,
+  "mean_place": 5.444
+ },
+ "BG36_MagicItem_810t": {
+  "kind": "greater",
+  "n": 9,
+  "mean_place": 5.444
+ },
+ "BG32_MagicItem_801t": {
+  "kind": "greater",
+  "n": 11,
+  "mean_place": 5.455
+ },
+ "BG36_MagicItem_204": {
+  "kind": "greater",
+  "n": 11,
+  "mean_place": 5.455
+ },
+ "BG30_MagicItem_410t2": {
+  "kind": "greater",
+  "n": 10,
+  "mean_place": 5.5
+ },
+ "BG30_MagicItem_442": {
+  "kind": "greater",
+  "n": 8,
+  "mean_place": 5.5
+ },
+ "BG36_MagicItem_404t": {
+  "kind": "greater",
+  "n": 8,
+  "mean_place": 5.5
+ },
+ "BG36_MagicItem_406": {
+  "kind": "greater",
+  "n": 8,
+  "mean_place": 5.5
+ },
+ "BG36_MagicItem_418": {
+  "kind": "greater",
+  "n": 8,
+  "mean_place": 5.5
+ },
+ "BG35_MagicItem_742": {
+  "kind": "greater",
+  "n": 9,
+  "mean_place": 5.556
+ },
+ "BG35_MagicItem_743": {
+  "kind": "greater",
+  "n": 9,
+  "mean_place": 5.556
+ },
+ "BG36_MagicItem_840": {
+  "kind": "greater",
+  "n": 9,
+  "mean_place": 5.556
+ },
+ "BG36_MagicItem_417": {
+  "kind": "greater",
+  "n": 8,
+  "mean_place": 5.625
+ },
+ "BG36_MagicItem_602": {
+  "kind": "greater",
+  "n": 8,
+  "mean_place": 5.625
+ },
+ "BG30_MagicItem_879t": {
+  "kind": "greater",
+  "n": 9,
+  "mean_place": 5.667
+ },
+ "BG32_MagicItem_283": {
+  "kind": "greater",
+  "n": 9,
+  "mean_place": 5.667
+ },
+ "BG36_MagicItem_830": {
+  "kind": "greater",
+  "n": 9,
+  "mean_place": 5.667
+ },
+ "BG32_MagicItem_200": {
+  "kind": "greater",
+  "n": 11,
+  "mean_place": 5.727
+ },
+ "BG32_MagicItem_172": {
+  "kind": "greater",
+  "n": 8,
+  "mean_place": 5.75
+ },
+ "BG35_MagicItem_154": {
+  "kind": "greater",
+  "n": 9,
+  "mean_place": 5.778
+ },
+ "BG30_MagicItem_540": {
+  "kind": "greater",
+  "n": 10,
+  "mean_place": 5.8
+ },
+ "BG30_MagicItem_541": {
+  "kind": "greater",
+  "n": 8,
+  "mean_place": 5.875
+ },
+ "BG30_MagicItem_943": {
+  "kind": "greater",
+  "n": 8,
+  "mean_place": 5.875
+ },
+ "BG36_MagicItem_606": {
+  "kind": "greater",
+  "n": 8,
+  "mean_place": 5.875
+ },
+ "BG36_MagicItem_450": {
+  "kind": "greater",
+  "n": 9,
+  "mean_place": 5.889
+ },
+ "BG32_MagicItem_860t": {
+  "kind": "greater",
+  "n": 11,
+  "mean_place": 6.0
+ },
+ "BG36_MagicItem_416": {
+  "kind": "greater",
+  "n": 8,
+  "mean_place": 6.0
+ },
+ "BG36_MagicItem_600": {
+  "kind": "greater",
+  "n": 8,
+  "mean_place": 6.125
+ },
+ "BG35_MagicItem_754": {
+  "kind": "greater",
+  "n": 7,
+  "mean_place": 6.143
+ },
+ "BG36_MagicItem_430": {
+  "kind": "greater",
+  "n": 7,
+  "mean_place": 6.143
+ },
+ "BG30_MagicItem_546": {
+  "kind": "greater",
+  "n": 9,
+  "mean_place": 6.222
+ },
+ "BG30_MagicItem_701": {
+  "kind": "greater",
+  "n": 8,
+  "mean_place": 6.5
+ }
+}
