@@ -101,10 +101,9 @@ tests/                纯逻辑测试 + (可选)Nimble 联测
 当前状态(2026-11-04,policy v18 = v16 + 英雄表 K64 + 成型模型 + 饰品表):
 前四率 **~66%**(饰品表门 ON 臂 300 局合并 65.7%;最新单次 gym 70% @ seeds
 1400–1499;bot 参照 59%)。TavernBench(`tavernbench.score` 口径):
-combat 0.98 / targets 0.98 / strategy **0.39**(配方初筛;确定性管道下真实增益
-+0.089,基线 0.304)/ selection 0.58 / economy **0.73** + rules **0.45**(规则
-出口:R1/E1 等纯 prompt 题由 deepseek 一次调用作答,2026-11-04)/ overall
-**0.72**。详细的 70%+ 演进路线(优先级/
+combat 0.98 / targets 0.98 / strategy **0.36** / selection 0.60 / economy
+**0.73** / rules **0.70**(规则出口 + 机制附录 + R5 金色求解器,2026-11-04)/
+overall **0.75**。详细的 70%+ 演进路线(优先级/
 预期增益/把握度/已证伪方向)见
 [docs/LEEAGENT_ROADMAP.md](../docs/LEEAGENT_ROADMAP.md)。
 

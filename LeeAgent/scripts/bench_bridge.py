@@ -20,6 +20,7 @@ import argparse
 import gzip
 import json
 import multiprocessing as mp
+import re
 import sys
 import time
 from collections import defaultdict
@@ -184,16 +185,39 @@ def rollout_unit(args):
     return rid, k, None
 
 
+MECHANICS_APPENDIX = """
+Engine mechanics (authoritative for this simulator):
+- Golden crafting: the golden minion's stats = 2x the normal card's BASE stats
+  + the sum of every merged copy's stat gains above its own base (losses
+  included). Golden card text doubles the numbers of the normal text.
+- Playing a minion from hand costs 0 Gold. Buying costs 3, selling gives
+  exactly 1, refreshing costs 1. A card only costs Gold to play if its text
+  says so (e.g. "Costs 1").
+- "Give your OTHER minions ..." never includes the source minion itself.
+- A Battlecry resolves immediately when the minion is played, before anything
+  else you do next. Simultaneous end-of-turn / start-of-turn triggers resolve
+  left to right across the warband.
+- Upgrade price: drops by 1 at the start of each turn you did not upgrade
+  (floor 0). Upgrading sets the price to the NEXT tier's base price (the decay
+  does not carry over); at the maximum tier the price is 0.
+- Buys need 3 Gold and hand space (hand holds at most 10); plays need warband
+  space (at most 7); refreshing needs 1 Gold.
+"""
+
+
 def rules_answer(rid, prompt, client, model):
     """One text-model call for a rules/economy task. The task prompt carries
     the rules summary, the state, the card rules and the answer format; we
-    only add a generic JSON-compliance instruction — no per-task tuning."""
+    add a generic JSON-compliance instruction plus a fixed mechanics appendix
+    distilled from the engine source (crates/taverngym/src) — no per-task
+    tuning."""
     import json
     import re
     t = time.time()
     sys_msg = ("You answer Hearthstone Battlegrounds rules questions. Reason "
                "step by step, then output ONLY the final answer as a single "
-               "JSON object in the exact '## Answer format' given in the task.")
+               "JSON object in the exact '## Answer format' given in the task."
+               + MECHANICS_APPENDIX)
     try:
         rsp = client.chat.completions.create(
             model=model,
@@ -385,7 +409,29 @@ def main():
             answers[rid] = {"answer": row["map"][str(best)]}
     print(f"rollout tasks: {len(best_by_task)} done ({time.time()-t0:.0f}s)", flush=True)
 
-    # -- rules/economy tasks: no executable state, ask the text model ------
+    # -- rules/economy tasks ---------------------------------------------
+    # R5 (golden crafting): every input is in the prompt and the engine's
+    # merge formula is exact (engine.rs merge_golden: golden base + each
+    # part's gains above its base, losses included) - answer in code
+    for rid in labels:
+        if rid.split("-")[0] != "R5" or rid in answers:
+            continue
+        p = prompts[rid]["prompt"]
+        m = re.search(r"You buy the (.+?) in tavern position 0, which completes "
+                      r"a triple\. The card's base stats are (\d+)/(\d+)\.",
+                      p.split("## Question")[-1])
+        if not m:
+            continue
+        name, ba, bh = m.group(1), int(m.group(2)), int(m.group(3))
+        body = p.split("## Card rules")[0]
+        ga, gh = 2 * ba, 2 * bh
+        for _pos, a, h in re.findall(
+                rf"(\d+)\. {re.escape(name)} \(.*?\) (\d+)/(\d+)", body):
+            ga += int(a) - ba
+            gh += int(h) - bh
+        answers[rid] = {"answer": [ga, gh]}
+
+    # the rest: no executable state, ask the text model ----------------------
     rule_scen = ("R1", "R3", "R4", "R5", "R6", "R7", "E1", "E2", "E4", "E5")
     rule_ids = [rid for rid in labels
                 if rid.split("-")[0] in rule_scen and rid not in answers]
