@@ -73,6 +73,7 @@ scripts/
   gen_trajectories.py train_value.py        价值模型管线
   synergy_gen.py synergy_table.py synergy_gate.py  协同表管线(v1 门否决,表保留)
   pair_gate.py pair_adopt_gate.py        固定组三臂实验(6 对实测,买分倾斜未过门)
+  scout_boards.py scout_gate.py          合成面板侦察(⑤,门否决,池保留)
   bench_bridge.py                           TavernBench 桥接
   param_sweep.py comp_sweep.py calibrate.py feature_ablation.py  调参/校准/消融
 tests/                纯逻辑测试 + (可选)Nimble 联测
@@ -110,6 +111,7 @@ TavernAgent 0.91)、selection 0.68、strategy 0.30。
   0.506,墙是隐藏信息);观察性卡牌协同表 v1 门否决(dev +0.14 / holdout
   −0.14,产物保留);固定组两卡包测得 6 对真效应(三臂因果协议),但买分
   倾斜与冻结保牌两种注入均未过采纳门——稀疏清单 × 自然出现率改变不了
-  聚合指标(详见 roadmap);记忆冷路径蒸馏第一批 9 条候选全被门否决,待
-  动词词表扩展后重试。
+  聚合指标(详见 roadmap);⑤合成面板侦察门否决(双集强反向,快照侦察
+  的对手特异性信息是承重的);记忆冷路径蒸馏第一批 9 条候选全被门否决,
+  待动词词表扩展后重试。
 - 评测: TavernBench 桥接(states.jsonl.gz → 局面 → LeeAgent 决策 → 答案格式)。

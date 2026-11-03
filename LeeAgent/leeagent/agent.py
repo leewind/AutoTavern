@@ -10,10 +10,13 @@ import json
 import taverngym
 
 from . import comp as comp_mod
-from . import lookahead, memory, nimble, policy
+from . import lookahead, memory, nimble, policy, scoutsynth
 from .config import NIMBLE_BASE, thresholds
 from .facts import extract_facts
 from .retrieval import Retrieval, retrieve
+
+SYNTH_SCOUT = False       # roadmap 5: danger vs turn-T board distribution
+                          # instead of one opponent snapshot (gate switch)
 
 
 class LeeAgent:
@@ -110,6 +113,10 @@ class LeeAgent:
         """One combat preview vs the next opponent's scouted board: our win
         rate + half ties, as a coarse ahead/behind signal for this turn.
         None when there is nothing to scout."""
+        if SYNTH_SCOUT:
+            d = scoutsynth.danger(game, seat, facts["turn"])
+            if d is not None:
+                return d
         opp = facts.get("next_opponent")
         if opp is None or facts["board_count"] < 1:
             return None
