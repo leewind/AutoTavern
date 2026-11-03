@@ -114,20 +114,32 @@ def main():
     ap.add_argument("--games", type=int, default=5000)
     ap.add_argument("--seed0", type=int, default=70000)
     a = ap.parse_args()
-    X, y = [], []
+    import numpy as np
+    # large runs stream into float32 shards: 100k games would be ~8M rows
+    # and >30GB as python lists
+    X_parts, y_parts, X, y, done = [], [], [], [], 0
     with mp.Pool(96) as pool:
         for out in pool.imap_unordered(play_game, range(a.seed0, a.seed0 + a.games),
                                        chunksize=8):
             if out is None:
                 continue
             rows, reward = out
-            for r in rows:
-                X.append(r)
-                y.append(reward)
-    import numpy as np
-    np.savez_compressed(ROOT / "data" / "trajectories.npz",
-                        X=np.array(X, dtype=np.float32), y=np.array(y, dtype=np.float32))
-    print(f"{len(y)} rows from {a.games} games -> data/trajectories.npz")
+            X.extend(rows)
+            y.extend([reward] * len(rows))
+            done += 1
+            if done % 5000 == 0:
+                print(f"{done}/{a.games} games, {len(y)} rows", flush=True)
+            if len(y) >= 2_000_000:
+                X_parts.append(np.asarray(X, dtype=np.float32))
+                y_parts.append(np.asarray(y, dtype=np.float32))
+                X, y = [], []
+    if X:
+        X_parts.append(np.asarray(X, dtype=np.float32))
+        y_parts.append(np.asarray(y, dtype=np.float32))
+    Xa = np.vstack(X_parts) if X_parts else np.zeros((0, 0), dtype=np.float32)
+    ya = np.concatenate(y_parts) if y_parts else np.zeros((0,), dtype=np.float32)
+    np.savez_compressed(ROOT / "data" / "trajectories.npz", X=Xa, y=ya)
+    print(f"{len(ya)} rows from {done} games -> data/trajectories.npz")
 
 
 if __name__ == "__main__":
