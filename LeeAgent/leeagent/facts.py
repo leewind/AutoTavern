@@ -63,6 +63,7 @@ def extract_facts(view: dict) -> dict:
         "health": me["health"],
         "armor": me.get("armor") or 0,
         "tier": me["tier"],
+        "hero_id": (me.get("hero") or {}).get("id"),
         "gold": me["gold"],
         "gold_cap": me.get("max_gold") or 10,
         "hand_count": len(hand),

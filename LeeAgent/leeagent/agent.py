@@ -133,6 +133,15 @@ class LeeAgent:
             cands = memory.prefilter(self.store, facts, self.th["max_candidates"])
             self._retrieval = Retrieval(candidates=[m["id"] for m in cands],
                                         matched=[(m, 1.0) for m in cands[:3]])
+        # structural memory verbs (roadmap 6): matched memories may carry
+        # commit_tribe (earlier direction commitment) or hold_upgrade
+        # (this turn's upgrade veto) — score-tweak verbs stay in policy
+        for m, _p in self._retrieval.matched:
+            b = m.get("bias") or {}
+            if self._comp is None and "commit_tribe" in b:
+                self._comp = b["commit_tribe"]
+            if b.get("hold_upgrade"):
+                self._no_upgrade = True
         self.stats["turns"] += 1
         self.turn_log.append({
             "turn": facts["turn"], "gold": facts["gold"], "health": facts["health"],

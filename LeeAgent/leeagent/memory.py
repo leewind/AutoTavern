@@ -19,6 +19,8 @@ REQUIRED = ("id", "kind", "when", "situation", "action", "rationale")
 
 def matches(when: dict, facts: dict) -> bool:
     w = when or {}
+    if "hero_in" in w and facts.get("hero_id") not in w["hero_in"]:
+        return False
     if "turn_min" in w and facts["turn"] < w["turn_min"]:
         return False
     if "turn_max" in w and facts["turn"] > w["turn_max"]:
@@ -74,7 +76,7 @@ def specificity(when: dict) -> int:
                         "hp_above", "gold_gte", "gold_lte", "board_count_gte",
                         "board_count_lte", "num_alive_lte", "win_streak_gte",
                         "hand_dup_in_shop", "opp_seen_more_minions", "opp_seen_keyword",
-                        "hand_full", "board_full", "next_is_ghost")
+                        "hand_full", "board_full", "next_is_ghost", "hero_in")
             if w.get(k) is not None)
     n += sum(w.get("tribe_min", {}).values()) + sum(w.get("shop_tribe_min", {}).values())
     n += len(w.get("any_keyword") or [])
