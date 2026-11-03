@@ -1,0 +1,199 @@
+{
+ "source": "hsreplay archetypes -> pool-mapped cores, causally measured (scripts/recipe_gate.py, seeds 130000+)",
+ "recipes": [
+  {
+   "name": "mech_magnetics",
+   "tribe": "MECH",
+   "cores": [
+    "BG26_152",
+    "BG36_851",
+    "BG36_366",
+    "BG36_367"
+   ],
+   "gain": -2.58,
+   "n": 50,
+   "t": -7.77
+  },
+  {
+   "name": "dragon_battlecry",
+   "tribe": "DRAGON",
+   "cores": [
+    "TB_BaconUps_109",
+    "BG34_633"
+   ],
+   "gain": -1.92,
+   "n": 50,
+   "t": -5.25
+  },
+  {
+   "name": "elemental_refresh",
+   "tribe": "ELEMENTAL",
+   "cores": [
+    "BG34_856",
+    "BG34_865",
+    "TB_BaconUps_167",
+    "BG28_707"
+   ],
+   "gain": -1.92,
+   "n": 50,
+   "t": -4.89
+  },
+  {
+   "name": "pirate_bounty",
+   "tribe": "PIRATE",
+   "cores": [
+    "BG33_825",
+    "BG33_823",
+    "BG33_822",
+    "BG33_821"
+   ],
+   "gain": -1.918,
+   "n": 49,
+   "t": -5.71
+  },
+  {
+   "name": "pirate_gold_spend",
+   "tribe": "PIRATE",
+   "cores": [
+    "BG26_810",
+    "BG36_523"
+   ],
+   "gain": -1.86,
+   "n": 50,
+   "t": -5.05
+  },
+  {
+   "name": "undead_spells",
+   "tribe": "UNDEAD",
+   "cores": [
+    "BG34_692",
+    "BG32_880"
+   ],
+   "gain": -1.84,
+   "n": 50,
+   "t": -5.18
+  },
+  {
+   "name": "undead_reborn",
+   "tribe": "UNDEAD",
+   "cores": [
+    "BG25_009",
+    "BG36_514",
+    "BG36_515",
+    "BG34_690"
+   ],
+   "gain": -1.74,
+   "n": 50,
+   "t": -5.06
+  },
+  {
+   "name": "beast_rally",
+   "tribe": "BEAST",
+   "cores": [
+    "BG36_207",
+    "BG36_211",
+    "TB_BaconUps_085"
+   ],
+   "gain": -1.72,
+   "n": 50,
+   "t": -5.34
+  },
+  {
+   "name": "mech_divine_shield",
+   "tribe": "MECH",
+   "cores": [
+    "BG34_405",
+    "BG28_741"
+   ],
+   "gain": -1.694,
+   "n": 49,
+   "t": -4.8
+  },
+  {
+   "name": "demon_consume",
+   "tribe": "DEMON",
+   "cores": [
+    "BG34_500",
+    "BG21_004",
+    "BG28_633",
+    "BG36_503"
+   ],
+   "gain": -1.64,
+   "n": 50,
+   "t": -4.43
+  },
+  {
+   "name": "mech_deathrattle",
+   "tribe": "MECH",
+   "cores": [
+    "BG36_854",
+    "BG35_342"
+   ],
+   "gain": -1.477,
+   "n": 44,
+   "t": -4.6
+  },
+  {
+   "name": "quilboar_gems",
+   "tribe": "QUILBOAR",
+   "cores": [
+    "BG30_121",
+    "BG28_583",
+    "BG23_017",
+    "BG20_104"
+   ],
+   "gain": -1.44,
+   "n": 50,
+   "t": -3.83
+  },
+  {
+   "name": "dragon_spells",
+   "tribe": "DRAGON",
+   "cores": [
+    "BG27_005",
+    "BG33_924",
+    "BG32_821"
+   ],
+   "gain": -1.255,
+   "n": 47,
+   "t": -2.89
+  },
+  {
+   "name": "murloc_hand",
+   "tribe": "MURLOC",
+   "cores": [
+    "BG26_137",
+    "BG26_354",
+    "BG36_704"
+   ],
+   "gain": -1.24,
+   "n": 50,
+   "t": -3.23
+  },
+  {
+   "name": "demon_hero_damage",
+   "tribe": "DEMON",
+   "cores": [
+    "BG26_523",
+    "BG32_873",
+    "BG33_155"
+   ],
+   "gain": -1.14,
+   "n": 50,
+   "t": -3.13
+  },
+  {
+   "name": "beast_summons",
+   "tribe": "BEAST",
+   "cores": [
+    "BG35_602",
+    "BG26_802",
+    "BG36_210",
+    "BG36_208"
+   ],
+   "gain": -0.94,
+   "n": 50,
+   "t": -2.38
+  }
+ ]
+}

@@ -4,15 +4,30 @@ The direction decision is code-scored (catalog engine density + board
 affinity + hero affinity); the policy consumes the committed tribe through
 score_actions' `comp` parameter. Scaling-engine text value only counts
 INSIDE the committed direction — the global version was ablated harmful.
+
+Recipe layer (USE_RECIPES): HSReplay archetype comps mapped onto this
+pool's cards, then causally measured by forced assembly
+(scripts/recipe_gate.py). When on, direction density comes from measured
+recipe strength instead of keyword counts, and buying a missing core of
+the tribe's best recipe earns a checklist bonus.
 """
 
 from __future__ import annotations
 
 import json
 from functools import lru_cache
+from pathlib import Path
 
 TRIBES = ("BEAST", "DRAGON", "MECH", "MURLOC", "UNDEAD",
           "DEMON", "ELEMENTAL", "PIRATE", "QUILBOAR")
+
+USE_RECIPES = False      # recipe gate switch; runs/recipe_gate.json arbitrates
+
+
+@lru_cache(maxsize=1)
+def recipe_table() -> dict:
+    p = Path(__file__).resolve().parents[1] / "data" / "recipes.json"
+    return json.loads(p.read_text()) if p.is_file() else {}
 
 # direction-decision constants (coordinate-ascent tuned; scripts/comp_sweep.py)
 COMMIT_TURN = 5            # earliest turn a direction may be committed
@@ -50,15 +65,51 @@ def engine_density() -> dict:
     return dens
 
 
+def _recipe_strength() -> dict:
+    """tribe -> strength of its best measured recipe, normalised to 0..1."""
+    best: dict[str, float] = {}
+    for r in recipe_table().get("recipes", []):
+        s = -r.get("gain", 0)
+        if s > best.get(r["tribe"], 0.0):
+            best[r["tribe"]] = s
+    m = max(best.values(), default=0) or 1
+    return {t: v / m for t, v in best.items()}
+
+
+def recipe_core_bonus(card_id: str | None, owned_ids: set,
+                      comp: str | None) -> float:
+    """Buying a missing core of the committed tribe's best recipe earns a
+    checklist bonus (4..10 pts, scaled by measured recipe strength)."""
+    if not USE_RECIPES or not card_id or not comp:
+        return 0.0
+    recipes = [r for r in recipe_table().get("recipes", [])
+               if r["tribe"] == comp]
+    if not recipes:
+        return 0.0
+    best = max(recipes, key=lambda r: -r.get("gain", 0))
+    strength = -best.get("gain", 0)
+    m = max((-r.get("gain", 0) for r in recipe_table().get("recipes", [])),
+            default=1) or 1
+    cid = card_id[:-2] if card_id.endswith("_G") else card_id
+    if cid not in best.get("cores", []) or cid in owned_ids:
+        return 0.0
+    return 4.0 + 6.0 * strength / m
+
+
 def decide(view: dict, facts: dict) -> str | None:
     """The committed tribe, or None while the board shows no direction.
 
     Board affinity dominates (commit to what we already have), the catalog's
     engine density breaks ties between equal boards, hero text is a nudge.
+    With USE_RECIPES the tie-break density is the measured recipe strength.
     """
     tribes = facts.get("tribes") or {}
-    dens = engine_density()
-    dmax = max(dens.values()) or 1
+    if USE_RECIPES and recipe_table():
+        dens = _recipe_strength()
+        dmax = 1
+    else:
+        dens = engine_density()
+        dmax = max(dens.values()) or 1
     hero_text = ((view["me"].get("hero") or {}).get("text") or "").lower()
 
     best, best_s = None, 0.0

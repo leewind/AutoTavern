@@ -55,3 +55,14 @@ def test_pair_partner_unfrozen(monkeypatch):
     assert P.pair_partner_unfrozen(shop, {"C2"}) is False      # core not owned
     frozen_only = [{"id": "S1", "frozen": True}]
     assert P.pair_partner_unfrozen(frozen_only, {"C1"}) is False  # no toggle loop
+
+
+def test_recipe_core_bonus_default_off():
+    """USE_RECIPES defaults off (adopt gate: feature inert) — the bonus
+    must be exactly zero until the switch is flipped."""
+    import leeagent.comp as C
+    assert C.USE_RECIPES is False
+    table = C.recipe_table()
+    assert table.get("recipes")
+    r0 = table["recipes"][0]
+    assert C.recipe_core_bonus(r0["cores"][0], set(), r0["tribe"]) == 0.0

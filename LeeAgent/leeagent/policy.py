@@ -441,9 +441,13 @@ def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: i
             t = {norm_tribe(r) for r in card.get("races") or []}
             if comp and not is_spell:
                 if comp in t:
-                    from .comp import engine_text_bonus
+                    from .comp import engine_text_bonus, recipe_core_bonus
                     score += COMP_BUY_BASE + engine_text_bonus(card)
                     why.append(f"comp {comp}")
+                    rb = recipe_core_bonus(card.get("id"), own_base, comp)
+                    if rb:
+                        score += rb
+                        why.append(f"recipe {rb:+.0f}")
                 elif scout is None or scout >= SCOUT_BEHIND:
                     score -= OFFCOMP_TAX   # off-comp tax (waived when behind)
                     why.append("off-comp")

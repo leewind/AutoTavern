@@ -74,6 +74,7 @@ scripts/
   synergy_gen.py synergy_table.py synergy_gate.py  协同表管线(v1 门否决,表保留)
   pair_gate.py pair_adopt_gate.py        固定组三臂实验(6 对实测,买分倾斜未过门)
   scout_boards.py scout_gate.py          合成面板侦察(⑤,门否决,池保留)
+  recipe_gate.py recipe_adopt_gate.py    HSReplay 阵容映射+因果 tier 榜(接线惰性)
   bench_bridge.py                           TavernBench 桥接
   param_sweep.py comp_sweep.py calibrate.py feature_ablation.py  调参/校准/消融
 tests/                纯逻辑测试 + (可选)Nimble 联测
