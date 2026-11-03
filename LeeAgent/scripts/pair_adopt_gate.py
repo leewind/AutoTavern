@@ -33,6 +33,8 @@ def run(args):
     from leeagent.config import thresholds
     if arm == "off":
         P._fixed_pairs = lambda: []
+    else:
+        P.PAIR_FREEZE = 6.0     # default 0.0 in policy (gate-rejected)
     a = gate.LeeAgent(BASE_BANK, th=thresholds(), use_nimble=False)
     return seed, a.run_game(seed, seat=0)["placement"]
 

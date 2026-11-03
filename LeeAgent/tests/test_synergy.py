@@ -44,3 +44,14 @@ def test_fixed_pair_bonus(monkeypatch):
     assert P.fixed_pair_bonus("C1", {"S1"}) == 0.0            # reverse not measured
     assert P.fixed_pair_bonus("S1", set()) == 0.0
     assert P.fixed_pair_bonus(None, {"C1"}) == 0.0
+
+
+def test_pair_partner_unfrozen(monkeypatch):
+    fake = [{"core": "C1", "support": "S1", "tribe": "BEAST", "gain": -1.0,
+             "n": 35}]
+    monkeypatch.setattr(P, "_FIXED_PAIRS", fake)
+    shop = [{"id": "X"}, {"id": "S1"}, {"id": "S1_G"}, {"id": "S1", "frozen": True}]
+    assert P.pair_partner_unfrozen(shop, {"C1"}) is True       # S1 base or golden
+    assert P.pair_partner_unfrozen(shop, {"C2"}) is False      # core not owned
+    frozen_only = [{"id": "S1", "frozen": True}]
+    assert P.pair_partner_unfrozen(frozen_only, {"C1"}) is False  # no toggle loop

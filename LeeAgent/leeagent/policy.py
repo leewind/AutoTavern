@@ -182,6 +182,30 @@ def fixed_pair_bonus(card_id: str | None, owned_ids: set) -> float:
             bonus += FIXED_PAIR_W * min(abs(pr["gain"]), 0.5)
     return bonus
 
+
+PAIR_FREEZE = 0.0       # freeze-gate rejected 2026-11-03 (dev +0.00 / holdout
+                         # -0.06, 95%/97% of games decision-unchanged;
+                         # runs/pair_freeze_gate.json). A 6-pair list x natural
+                         # availability is too sparse to move aggregates —
+                         # re-open only with a much larger causally-screened
+                         # list or comp-level priors.
+
+
+def pair_partner_unfrozen(shop: list, owned_ids: set) -> bool:
+    """An adopted fixed-pair support sitting unfrozen in this shop with its
+    core already owned — the freeze-worthy situation. The frozen check keeps
+    the freeze button (a whole-shop toggle) from looping."""
+    for card in shop:
+        cid = card.get("id") or ""
+        if not cid or card.get("frozen"):
+            continue
+        if cid.endswith("_G"):
+            cid = cid[:-2]
+        for pr in _fixed_pairs():
+            if pr["support"] == cid and pr["core"] in owned_ids:
+                return True
+    return False
+
 _TRIBES = ("beast", "dragon", "mech", "murloc", "undead", "demon",
            "elemental", "pirate", "quilboar")
 
@@ -307,6 +331,8 @@ def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: i
     hand_quality = [card_quality(c) for c in hand]
     board_ids = [m.get("id") for m in board]
     hand_ids = [c.get("id") for c in hand]
+    own_base = {c[:-2] if c and c.endswith("_G") else c
+                for c in board_ids + hand_ids}
     minions_owned = sum(1 for c in hand if c.get("type") != "spell") + len(board)
     board_full = len(board) >= 7
     weakest_val = min(board_quality) if board_quality else -1.0
@@ -429,10 +455,8 @@ def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: i
                 # fixed pairs fire regardless of comp state (they were
                 # measured that way); goldens count as their base card
                 base = card.get("id") or ""
-                base = base[:-2] if base.endswith("_G") else base
-                own = {c[:-2] if c and c.endswith("_G") else c
-                       for c in board_ids + hand_ids}
-                fp = fixed_pair_bonus(base, own)
+                fp = fixed_pair_bonus(
+                    base[:-2] if base.endswith("_G") else base, own_base)
                 if fp:
                     score += fp
                     why.append(f"fixed-pair {fp:+.0f}")
@@ -473,6 +497,14 @@ def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: i
         elif kind == "freeze":
             score = -0.5 + freeze_bonus
             why.append("freeze")
+            # fixed-pair availability: freezing is the legal way to keep an
+            # adopted support in the shop until it is buyable ("meet it,
+            # keep it"). The button toggles ALL cards, so only fire while
+            # the partner is unfrozen (no toggle loop) and not buyable now.
+            if PAIR_FREEZE and (gold < 3 or f["hand_full"]) \
+                    and pair_partner_unfrozen(shop, own_base):
+                score = PAIR_FREEZE
+                why.append("pair freeze")
         elif kind == "end":
             score = float(end_bonus)
             if gold >= 4 and et_gold_pen:
