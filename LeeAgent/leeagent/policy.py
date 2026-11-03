@@ -183,6 +183,9 @@ def fixed_pair_bonus(card_id: str | None, owned_ids: set) -> float:
     return bonus
 
 
+FREEZE_FIX = False      # idempotency guard: no freeze bonus while the shop
+                         # is already frozen (kills the M020 toggle loop)
+FREEZE_BIAS = True      # consume M020's prefer_freeze bonus at all
 PAIR_FREEZE = 0.0       # freeze-gate rejected 2026-11-03 (dev +0.00 / holdout
                          # -0.06, 95%/97% of games decision-unchanged;
                          # runs/pair_freeze_gate.json). A 6-pair list x natural
@@ -502,7 +505,17 @@ def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: i
             score = 5.0 if (gold >= 3 and n_turn_actions < 40) else -2.0
             why.append("reroll")
         elif kind == "freeze":
-            score = -0.5 + freeze_bonus
+            # freeze toggles the WHOLE shop: the memory bonus only applies
+            # while it is unfrozen — without the guard M020 (+6) pressed it
+            # ~10x/turn (v18 toggle loop, all arms shared the bug).
+            # FREEZE_BIAS=False additionally zeroes the bonus: M020's sticky
+            # freeze measurably hurt once the guard made it stick.
+            shop_frozen = any(c.get("frozen") for c in shop)
+            bonus = freeze_bonus if FREEZE_BIAS else 0.0
+            if FREEZE_FIX and shop_frozen:
+                score = -1.5
+            else:
+                score = -0.5 + bonus
             why.append("freeze")
             # fixed-pair availability: freezing is the legal way to keep an
             # adopted support in the shop until it is buyable ("meet it,
