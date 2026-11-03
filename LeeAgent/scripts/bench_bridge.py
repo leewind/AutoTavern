@@ -236,7 +236,7 @@ def main():
             if v is not None:
                 vals[rid][k] = v
     for rid, vs in vals.items():
-        best = max(vs, key=vs.get)
+        best = min(vs, key=lambda k: (-vs[k], k))
         row = states[rid]
         if "answers" in row:                       # P*: letters
             answers[rid] = {"answer": row["answers"][best]}
@@ -305,7 +305,8 @@ def main():
                         vvals[rid][k] = v
         for rid, vs in vvals.items():
             if len(vs) == len(states[rid]["map"]):   # complete: keep top-2 only
-                top2[rid] = sorted(vs, key=vs.get, reverse=True)[:2]
+                top2[rid] = [k for k, _ in sorted(
+                    vs.items(), key=lambda kv: (-kv[1], kv[0]))][:2]
         print(f"value prescreen: {len(top2)} tasks -> top-2 ({time.time()-t0:.0f}s)",
               flush=True)
 
@@ -325,7 +326,8 @@ def main():
                     rv[rid][k] = v
         n_added = 0
         for rid, vs in rv.items():
-            extra = sorted(vs, key=vs.get, reverse=True)[:2]
+            extra = [k for k, _ in sorted(
+                vs.items(), key=lambda kv: (-kv[1], kv[0]))][:2]
             top2[rid] = sorted(set(top2.get(rid, [])) | set(extra))
             n_added += len(extra)
         print(f"recipe prescreen: +{n_added} N options unioned "
@@ -348,7 +350,7 @@ def main():
     for (rid, k), pls in places.items():
         best_by_task.setdefault(rid, {})[k] = sum(pls) / len(pls)
     for rid, opts in best_by_task.items():
-        best = min(opts, key=opts.get)
+        best = min(opts, key=lambda k: (opts[k], k))
         row = states[rid]
         if "answers" in row:                       # D1: index
             answers[rid] = {"answer": best}

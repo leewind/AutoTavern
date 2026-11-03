@@ -300,7 +300,7 @@ def choose_pending(legal: list[int], view: dict) -> int:
 
 def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: int = 0,
                   scout: float | None = None, buy_hint: int | None = None,
-                  comp: str | None = None) -> list:
+                  comp: str | None = None, no_upgrade: bool = False) -> list:
     """-> [(score, action_idx, label, why)], best first.
 
     Priority bands follow the scripted bot's proven order (play -> upgrade on
@@ -394,6 +394,9 @@ def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: i
                     and (f["upgrade_price"] or 99) > 3):
                 score = -20.0
                 why.append("low health: tempo over tier")
+            if score > 0 and no_upgrade:
+                score = -30.0             # value model: best buy beats tier
+                why.append("value gate")
             score += up_bonus
         elif kind == "sell":
             j = d[1]

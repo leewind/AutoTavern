@@ -17,13 +17,16 @@ def main():
     import lightgbm as lgb
     d = np.load(ROOT / "data" / "trajectories.npz")
     X, y = d["X"], d["y"]
-    n_games = 5000
-    rows_per_game = len(y) // n_games + 1
-    # rows were appended game by game; split index at game boundaries
-    game_of_row = np.arange(len(y)) // rows_per_game
+    # rows were appended game by game but boundaries were not stored; random
+    # per-row splits leak final rewards across train/valid. Contiguous row
+    # blocks (~30 games each) leak at most a straddling game per block edge.
     rng = np.random.default_rng(0)
-    val_games = rng.choice(n_games, size=500, replace=False)
-    val = np.isin(game_of_row, val_games)
+    n_blocks = 32
+    block = 5000
+    starts = rng.choice(len(y) - block, size=n_blocks, replace=False)
+    val = np.zeros(len(y), dtype=bool)
+    for s in starts:
+        val[s:s + block] = True
     model = lgb.LGBMRegressor(n_estimators=400, learning_rate=0.06, num_leaves=63,
                               min_child_samples=100, subsample=0.9, colsample_bytree=0.9,
                               n_jobs=96, verbose=-1)

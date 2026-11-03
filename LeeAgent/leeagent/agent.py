@@ -17,6 +17,20 @@ from .retrieval import Retrieval, retrieve
 
 SYNTH_SCOUT = False       # roadmap 5: danger vs turn-T board distribution
                           # instead of one opponent snapshot (gate switch)
+VALUE_GATE = False        # roadmap 7: value model vetoes on-curve upgrades
+                          # when E[reward | best buy] beats E[reward | upgrade]
+
+_LGBM = None
+
+
+def _value_model():
+    global _LGBM
+    if _LGBM is None:
+        import lightgbm as lgb
+        from pathlib import Path
+        p = Path(__file__).resolve().parents[1] / "data" / "value_model.txt"
+        _LGBM = lgb.Booster(model_file=str(p)) if p.is_file() else False
+    return _LGBM or None
 
 
 class LeeAgent:
@@ -38,6 +52,7 @@ class LeeAgent:
         self._turn_actions: list[str] = []
         self._danger: float | None = None
         self._buy_hint: int | None = None
+        self._no_upgrade = False
         self._comp: str | None = None
 
     # -- one decision ------------------------------------------------------
@@ -67,7 +82,8 @@ class LeeAgent:
         scored = policy.score_actions(view, self._retrieval.matched, legal,
                                       n_turn_actions=len(self._turn_actions),
                                       scout=self._danger, buy_hint=self._buy_hint,
-                                      comp=self._comp)
+                                      comp=self._comp,
+                                      no_upgrade=self._no_upgrade)
         best = scored[0]
         if (best[2] == "end" and not self._positioned
                 and (self.th["fix_positioning"] or self._fresh)
@@ -90,6 +106,8 @@ class LeeAgent:
         self._danger = self._scout(game, seat, facts)
         self._fresh = self._scout_fresh(view, facts)
         self._buy_hint = self._search_buy(game, seat, view, facts)
+        self._no_upgrade = self._value_gate(game, seat, view, facts) \
+            if VALUE_GATE else False
         if self._comp is None and facts["turn"] >= comp_mod.COMMIT_TURN:
             self._comp = comp_mod.decide(view, facts)
         if self.use_nimble and facts["turn"] >= 3:  # early turns: nothing to judge yet
@@ -174,6 +192,52 @@ class LeeAgent:
             except Exception:
                 continue
         return best_i
+    def _value_gate(self, game, seat: int, view: dict, facts: dict) -> bool:
+        """Roadmap 7: veto this turn's on-curve upgrade when the value model
+        says the best affordable buy leaves a better expected reward. Pure
+        feature prediction on game copies — no combat preview, no stale-panel
+        channel (the falsified lookahead traps live there)."""
+        model = _value_model()
+        if model is None:
+            return False
+        up_price = facts["upgrade_price"] or 99
+        if up_price > facts["gold"] or facts["tier"] >= 6:
+            return False
+        from scripts.gen_trajectories import feat_row
+
+        def v_after(steps) -> float | None:
+            g2 = game.copy()
+            try:
+                for a in steps:
+                    if a not in policy.legal_actions(g2, seat):
+                        return None
+                    g2.step(seat, a)
+                    if g2.is_over():
+                        return None
+                v2 = json.loads(g2.view(seat))
+                f2 = extract_facts(v2)
+                if f2["pending"]:
+                    return None
+                return float(model.predict([feat_row(v2, f2, self._comp)])[0])
+            except Exception:
+                return None
+
+        v_up = v_after([policy.A_UPGRADE])
+        if v_up is None:
+            return False
+        shop = view["me"].get("shop") or []
+        best_buy = max((policy.card_quality(c) for c in shop
+                        if c.get("type") != "spell" and 3 <= facts["gold"]), default=-1)
+        bi = next((policy.A_BUY + i for i, c in enumerate(shop)
+                   if c.get("type") != "spell" and 3 <= facts["gold"]
+                   and policy.card_quality(c) == best_buy), None)
+        if bi is None:
+            return False
+        v_buy = v_after([bi])
+        if v_buy is None:
+            return False
+        return v_buy > v_up          # margin-free comparison; gate arbitrates
+
     def _scout_fresh(self, view: dict, facts: dict) -> bool:
         """Is the next opponent's scouted board fresh enough to act on
         (seen within the last two turns)?"""
