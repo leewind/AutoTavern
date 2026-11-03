@@ -145,6 +145,43 @@ def synergy_bonus(card_id: str | None, board_ids: list, comp: str | None) -> flo
                 and e.get("sig"))
     return SYNERGY_W * total
 
+
+# adopted fixed pairs (scripts/pair_gate.py: forced-availability screen,
+# then a fresh-seed three-arm repro where the support's marginal vs a
+# core-only control had to be <= -0.15 places; gain is that marginal)
+_FIXED_PAIRS = None
+FIXED_PAIR_W = 0.0       # adopt-gate rejected 2026-11-03 (dev -0.07 / holdout
+                         # -0.06, both n.s., 97%/94% of games decision-unchanged;
+                         # runs/pair_adopt_gate.json). The 6 pairs are real
+                         # knowledge (1-place support marginals under forced
+                         # availability) — see the freeze/anchor re-open paths
+                         # in the roadmap before re-wiring this weight.
+
+
+def _fixed_pairs() -> list:
+    global _FIXED_PAIRS
+    if _FIXED_PAIRS is None:
+        import json
+        from pathlib import Path
+        p = Path(__file__).resolve().parents[1] / "data" / "fixed_pairs.json"
+        d = json.loads(p.read_text()) if p.is_file() else {}
+        _FIXED_PAIRS = d.get("pairs") or []
+    return _FIXED_PAIRS
+
+
+def fixed_pair_bonus(card_id: str | None, owned_ids: set) -> float:
+    """Buy bias for a support card whose adopted fixed-pair core is already
+    owned. The pair was measured under forced availability; here we only
+    steer — availability stays natural, and the paired adopt gate is the
+    arbiter of realized value."""
+    if not card_id:
+        return 0.0
+    bonus = 0.0
+    for pr in _fixed_pairs():
+        if pr["support"] == card_id and pr["core"] in owned_ids:
+            bonus += FIXED_PAIR_W * min(abs(pr["gain"]), 0.5)
+    return bonus
+
 _TRIBES = ("beast", "dragon", "mech", "murloc", "undead", "demon",
            "elemental", "pirate", "quilboar")
 
@@ -388,6 +425,17 @@ def score_actions(view: dict, matched: list, legal: list[int], n_turn_actions: i
                 if syn:
                     score += syn
                     why.append(f"synergy {syn:+.1f}")
+            if not is_spell:
+                # fixed pairs fire regardless of comp state (they were
+                # measured that way); goldens count as their base card
+                base = card.get("id") or ""
+                base = base[:-2] if base.endswith("_G") else base
+                own = {c[:-2] if c and c.endswith("_G") else c
+                       for c in board_ids + hand_ids}
+                fp = fixed_pair_bonus(base, own)
+                if fp:
+                    score += fp
+                    why.append(f"fixed-pair {fp:+.0f}")
             hit = t & buy_tribe
             if hit:
                 score += 8

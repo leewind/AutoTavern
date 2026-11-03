@@ -1,0 +1,49 @@
+{
+ "pairs": [
+  {
+   "core": "BGS_034",
+   "support": "BG26_963",
+   "tribe": "PIRATE",
+   "gain": -1.086,
+   "n": 35
+  },
+  {
+   "core": "BG25_008",
+   "support": "BG36_208",
+   "tribe": "UNDEAD",
+   "gain": -0.688,
+   "n": 32
+  },
+  {
+   "core": "BG26_174",
+   "support": "BG29_816",
+   "tribe": "DEMON",
+   "gain": -1.185,
+   "n": 27
+  },
+  {
+   "core": "BG36_763",
+   "support": "BG31_327",
+   "tribe": "PIRATE",
+   "gain": -1.067,
+   "n": 45
+  },
+  {
+   "core": "BGS_034",
+   "support": "BG36_112",
+   "tribe": "DRAGON",
+   "gain": -1.3,
+   "n": 40
+  },
+  {
+   "core": "BG34_170t3",
+   "support": "BG26_152",
+   "tribe": "MECH",
+   "gain": -0.938,
+   "n": 32
+  }
+ ],
+ "screen_seed0": 100000,
+ "repro_seed0": 110000,
+ "criterion": "n>=20, support marginal <= -0.15 (t<=-1.5), total <= -0.10, fresh repro seeds"
+}

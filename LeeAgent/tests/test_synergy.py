@@ -32,3 +32,15 @@ def test_synergy_off_arm(monkeypatch):
     degrade to exactly zero bonus."""
     monkeypatch.setattr(P, "_synergy_table", lambda: {})
     assert P.synergy_bonus("S1", ["C1"], "BEAST") == 0.0
+
+
+def test_fixed_pair_bonus(monkeypatch):
+    fake = [{"core": "C1", "support": "S1", "tribe": "BEAST", "gain": -1.0,
+             "n": 35}]
+    monkeypatch.setattr(P, "_FIXED_PAIRS", fake)
+    monkeypatch.setattr(P, "FIXED_PAIR_W", 24.0)       # default is 0 (gate-rejected)
+    # measured direction only: core owned -> support in shop
+    assert P.fixed_pair_bonus("S1", {"C1"}) == 24.0 * 0.5     # gain capped at 0.5
+    assert P.fixed_pair_bonus("C1", {"S1"}) == 0.0            # reverse not measured
+    assert P.fixed_pair_bonus("S1", set()) == 0.0
+    assert P.fixed_pair_bonus(None, {"C1"}) == 0.0
