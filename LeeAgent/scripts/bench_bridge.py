@@ -125,6 +125,38 @@ def value_unit(args):
     return rid, k, float(_LGB.predict([feat_row(view, facts, None)])[0])
 
 
+# ---------- phase 2c: recipe-progress scoring (strategy prescreen) ----------
+
+def recipe_unit(args):
+    """Recipe progress after applying option k: sum over causally-measured
+    recipes of strength x (owned cores / core count). A second prescreener
+    for N tasks alongside the value model — union top-2s, rollouts arbitrate
+    (no tuned weights; the knob-free design is the point)."""
+    rid, k, state_str, seat, first = args
+    from tavernbench import engine as E
+    from leeagent.comp import recipe_table
+    g = E.from_state(state_str)
+    if first is not None:
+        if first not in E.legal(g, seat):
+            return rid, k, None
+        g.step(seat, first)
+    me = E.view(g, seat)["me"]
+    owned = set()
+    for c in (me.get("board") or []) + (me.get("hand") or []):
+        cid = c.get("id") or ""
+        owned.add(cid[:-2] if cid.endswith("_G") else cid)
+    recipes = recipe_table().get("recipes") or []
+    if not recipes:
+        return rid, k, None
+    s = 0.0
+    for r in recipes:
+        cores = r.get("cores") or []
+        held = sum(1 for c in cores if c in owned)
+        if held:
+            s += (-r.get("gain", 0)) * held / len(cores)
+    return rid, k, s
+
+
 # ---------- phase 2: one (task, option, rollout) unit ----------
 
 def rollout_unit(args):
@@ -276,6 +308,28 @@ def main():
                 top2[rid] = sorted(vs, key=vs.get, reverse=True)[:2]
         print(f"value prescreen: {len(top2)} tasks -> top-2 ({time.time()-t0:.0f}s)",
               flush=True)
+
+    # recipe prescreen (N only): union with the value top-2, rollouts arbitrate
+    recipe_jobs = []
+    for rid, row in states.items():
+        if rid.split("-")[0] in ("N1", "N2") and rid not in answers:
+            for k in row["map"]:
+                if rid not in top2 or int(k) not in top2[rid]:
+                    recipe_jobs.append((rid, int(k), row["state"],
+                                        row.get("seat", 0), int(k)))
+    if recipe_jobs:
+        rv = defaultdict(dict)
+        with mp.Pool(96) as pool:
+            for rid, k, v in pool.imap_unordered(recipe_unit, recipe_jobs):
+                if v is not None:
+                    rv[rid][k] = v
+        n_added = 0
+        for rid, vs in rv.items():
+            extra = sorted(vs, key=vs.get, reverse=True)[:2]
+            top2[rid] = sorted(set(top2.get(rid, [])) | set(extra))
+            n_added += len(extra)
+        print(f"recipe prescreen: +{n_added} N options unioned "
+              f"({time.time()-t0:.0f}s)", flush=True)
 
     places = defaultdict(list)
     if top2:
