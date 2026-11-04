@@ -1,19 +1,24 @@
 # LeeAgent 演进路线:前四率 64% → 70%+
 
-状态基准(2026-11-03,policy v18 = v16 + ①英雄表K64 + ③成型模型 + ②饰品表,
-commit `0515642`):
+状态基准(2026-11-04,policy = v18 + ④站位v2 + LATE_SEARCH(轮10 采纳),
+commit `93ada62`):
 
 | 指标 | 数值 |
 | :--- | :--- |
-| 前四率 | ~66%(饰品表门 ON 臂 300 局合并 65.7%);最新 gym 70%(seeds 1400–1499);bot 参照 59% |
-| 平均名次 | 3.46(gym 1400–1499)~ 3.86(holdout ON 臂) |
-| TavernBench(score.py 口径,确定性管道) | combat 0.98 / strategy 0.39(配方初筛)/ selection 0.58 / overall 0.61 |
-| 单局成本 | ~1 秒(纯代码臂,96 核可并行) |
+| 前四率 | **75.3%**(轮10 三集合并 300 局:dev/holdout/1900 配对门 ON 臂);bot 参照 59% |
+| 平均名次 | **3.150**(同上口径) |
+| TavernBench(score.py 口径,确定性管道) | combat 0.98 / strategy 0.58 / selection 0.51 / rules 0.70 / **overall 0.785**(逐类见 [LEEAGENT_BENCH_RESULTS.md](LEEAGENT_BENCH_RESULTS.md);除 rules 外全部由部署机制作答,轮11) |
+| 单局成本 | ~35 秒(LATE_SEARCH 搜索;96 核可并行);bench 全量 14s |
 
-计划发起时的基准(2026-11-02,v16,commit `8e8dc89`):前四 64%
-(seeds 1200–1299),真实水平 ~61%,平均名次 3.59。
+主要增量(2026-11-04 一日,详见 [LEEAGENT_ITERATION_LOG.md](LEEAGENT_ITERATION_LOG.md)
+轮 8–11):bench 标签口径对齐(0.742→0.774)、E1 相位混合 agent 采纳
+(live +6.7pp 前四)、bench 出口统一为部署机制(0.769→0.785)。
 
-目标:前四率 ≥70%(需 +9pp)。以下按性价比排序,每项注明依据、预期增益、把握度与成本。
+历史基准:2026-11-03 v18(`0515642`)前四 ~66%、overall 0.61;2026-11-02 v16
+(`8e8dc89`)前四 64%、均名 3.59。
+
+目标:前四率 ≥70%(需 +9pp)——**已达成(75.3%)**。剩余量级:N2/D4 策略真实
+水平(bench 0.48/0.62 vs TavernAgent 0.67/0.81)需 ⑦ PPO/更强续打。以下按性价比排序,每项注明依据、预期增益、把握度与成本。
 评测纪律:dev=300–399,holdout=400–499,终评用全新种子段;特性采纳必须双集一致
 (hero-text 事故教训:单集采纳曾造成 holdout −17pp 的隐性损失)。
 
