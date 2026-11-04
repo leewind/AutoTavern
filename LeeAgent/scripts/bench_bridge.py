@@ -6,9 +6,16 @@ labels themselves were computed. Answer protocols:
 
   preview tasks   B/R2 (combat outcome), P (arrangement), O/T/D3/D5/E3
                   (apply the option, simulate the next combat, pick the best)
-  rollout tasks   D1 (hero), D2 (trinket), D4 (discover), N1/N2 (turn plans):
-                  apply the option, play the game out with the LeeAgent
-                  policy, mean placement over reseeded rollouts
+  rollout tasks   D1 (hero), D2 (trinket): LeeAgent continuation, --rollouts
+                  reps, value-prescreen top-2
+                  N1/N2/D4 (turn plans, discover): the LABEL measurement
+                  protocol (labels.jsonl meta: mean_place over 128 playouts
+                  of natural = bot games) -- every seat plays bot_action,
+                  salts paired across a task's options (same reseeds),
+                  --n-reps reps, no prescreen. Adopted 2026-11-04 after a
+                  paired A/B: bot口径 +12 net tasks over the frozen point vs
+                  +4 for pairing+reps alone (LeeAgent continuation is a
+                  biased meter, worst on N2/D4).
   rule tasks      no state (R1, R3-R7, E1, E2, E4, E5): left unanswered
 
     ../.venv/bin/python scripts/bench_bridge.py [--sims 512] [--rollouts 12]
@@ -131,7 +138,9 @@ def value_unit(args):
 def recipe_unit(args):
     """Recipe progress after applying option k: sum over causally-measured
     recipes of strength x (owned cores / core count). A second prescreener
-    for N tasks alongside the value model — union top-2s, rollouts arbitrate
+    for N tasks alongside the value model — union top-2s, rollouts arbitrate.
+    Retired from the pipeline 2026-11-04 (N tasks moved to the full label
+    protocol); kept as reference for recipe-gate tooling
     (no tuned weights; the knob-free design is the point)."""
     rid, k, state_str, seat, first = args
     from tavernbench import engine as E
@@ -161,7 +170,7 @@ def recipe_unit(args):
 # ---------- phase 2: one (task, option, rollout) unit ----------
 
 def rollout_unit(args):
-    rid, k, state_str, seat, first, salt = args
+    rid, k, state_str, seat, first, salt, seat_bot = args
     from tavernbench import engine as E
     from leeagent import gate
     from leeagent.config import thresholds
@@ -171,15 +180,26 @@ def rollout_unit(args):
         if first not in E.legal(g, seat):
             return rid, k, None
         g.step(seat, first)
-    agent = gate.LeeAgent(S["store"], th=thresholds(), use_nimble=False)
-    agent.reset()
-    agent._turn_seen = -1
+    agent = None
+    if not seat_bot:
+        agent = gate.LeeAgent(S["store"], th=thresholds(), use_nimble=False)
+        agent.reset()
+        agent._turn_seen = -1
     guard = 0
-    while not g.is_over() and guard < 100000:
-        for p in range(g.num_players):
-            if g.needs_action(p):
-                g.step(p, agent.choose(g, p) if p == seat else g.bot_action(p))
-        guard += 1
+    try:
+        while not g.is_over() and guard < 100000:
+            for p in range(g.num_players):
+                if g.needs_action(p):
+                    if p == seat and agent is not None:
+                        g.step(p, agent.choose(g, p))
+                    else:
+                        g.step(p, g.bot_action(p))
+            guard += 1
+    except ValueError:
+        # rare reseeded futures reach a state where the engine's bot_action
+        # proposes an illegal step (1 in ~70k in the 2026-11-04 A/B); drop
+        # the rollout -- the option means keep the other 127 reseeds
+        return rid, k, None
     if g.is_over():
         return rid, k, int(list(g.placements())[seat])
     return rid, k, None
@@ -246,6 +266,8 @@ def main():
     ap.add_argument("--sims", type=int, default=512)
     ap.add_argument("--sims-prob", type=int, default=1024)
     ap.add_argument("--rollouts", type=int, default=24)
+    ap.add_argument("--n-reps", type=int, default=128,
+                    help="reps for N1/N2/D4 label-protocol rollouts")
     a = ap.parse_args()
 
     from leeagent import memory
@@ -318,6 +340,11 @@ def main():
                 scored.append((t["mean_place"], k))
         if scored:
             answers[rid] = {"answer": min(scored)[1]}
+    # paired-salt schedule for the label-protocol scenarios: one stable task
+    # index, shared across a task's options so every option faces the same
+    # reseeds (identical to scripts/strategy_ab.py, which certified the arm)
+    pair_idx = {rid: i for i, rid in enumerate(
+        sorted(r for r in states if r.split("-")[0] in ("N1", "N2", "D4")))}
     roll_jobs = []
     for rid, row in states.items():
         sc = rid.split("-")[0]
@@ -326,31 +353,29 @@ def main():
                 continue
             for k, alt in enumerate(row["states"]):
                 for j in range(a.rollouts):
-                    roll_jobs.append((rid, k, alt, 0, None, 1000 * k + j))
+                    roll_jobs.append((rid, k, alt, 0, None,
+                                      1000 * k + j, False))
         elif sc == "D2":
             for k in row["map"]:               # keys are action indices already
                 for j in range(a.rollouts):
                     roll_jobs.append((rid, int(k), row["state"], 0,
-                                      int(k), 1000 * int(k) + j))
-        elif sc == "D4":
+                                      int(k), 1000 * int(k) + j, False))
+        elif sc in ("N1", "N2", "D4"):
+            base = pair_idx[rid] * 10000
             for k in row["map"]:
-                for j in range(a.rollouts):
+                for j in range(a.n_reps):
                     roll_jobs.append((rid, int(k), row["state"], row["seat"],
-                                      int(k), 1000 * int(k) + j))
-        elif sc in ("N1", "N2"):
-            for k in row["map"]:
-                for j in range(a.rollouts):
-                    roll_jobs.append((rid, int(k), row["state"], row["seat"],
-                                      int(k), 1000 * int(k) + j))
+                                      int(k), base + j, True))
 
-    # value model available: prescreen N/D2/D4 options, verify the top-2 by
-    # rollouts (the model's coarse ranking prunes, rollouts discriminate)
+    # value model available: prescreen D2 options, verify the top-2 by
+    # rollouts (N1/N2/D4 now run the full label protocol instead -- see
+    # rollout_unit -- so the prescreen is D2-only since 2026-11-04)
     top2 = {}
     if (ROOT / "data" / "value_model.txt").is_file():
         value_jobs = []
         for rid, row in states.items():
             sc = rid.split("-")[0]
-            if sc in ("N1", "N2", "D2", "D4") and rid not in answers:
+            if sc == "D2" and rid not in answers:
                 for k in row["map"]:
                     value_jobs.append((rid, int(k), row["state"],
                                        row.get("seat", 0), int(k)))
@@ -366,29 +391,6 @@ def main():
                     vs.items(), key=lambda kv: (-kv[1], kv[0]))][:2]
         print(f"value prescreen: {len(top2)} tasks -> top-2 ({time.time()-t0:.0f}s)",
               flush=True)
-
-    # recipe prescreen (N only): union with the value top-2, rollouts arbitrate
-    recipe_jobs = []
-    for rid, row in states.items():
-        if rid.split("-")[0] in ("N1", "N2") and rid not in answers:
-            for k in row["map"]:
-                if rid not in top2 or int(k) not in top2[rid]:
-                    recipe_jobs.append((rid, int(k), row["state"],
-                                        row.get("seat", 0), int(k)))
-    if recipe_jobs:
-        rv = defaultdict(dict)
-        with mp.Pool(96) as pool:
-            for rid, k, v in pool.imap_unordered(recipe_unit, recipe_jobs):
-                if v is not None:
-                    rv[rid][k] = v
-        n_added = 0
-        for rid, vs in rv.items():
-            extra = [k for k, _ in sorted(
-                vs.items(), key=lambda kv: (-kv[1], kv[0]))][:2]
-            top2[rid] = sorted(set(top2.get(rid, [])) | set(extra))
-            n_added += len(extra)
-        print(f"recipe prescreen: +{n_added} N options unioned "
-              f"({time.time()-t0:.0f}s)", flush=True)
 
     places = defaultdict(list)
     if top2:

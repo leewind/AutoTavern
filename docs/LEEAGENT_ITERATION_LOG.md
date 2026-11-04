@@ -25,6 +25,30 @@
 - **方向决策权重是死旋钮**(轮 2):W_AFFINITY/W_DENSITY/W_HERO 在 2×权重
   幅度内不改变任何一局的成型方向——决策实际由板面部族计数字典序决定。
   今后成型模型的迭代只动结构(何时/是否承诺),不动打分权重。
+- 引擎 `bot_action` 在极少数重播种未来里会给出非法动作(~1/70k 续打,ValueError
+  "that option can't be chosen");`rollout_unit` 按丢弃该 rep 处理(选项均值用其余
+  127 个 reseeds,不引入偏置面)。
 - 微调接触面台账:COMMIT_TURN ±1 仅 2% 局变化;COMP_BUY/OFFCOMP/SELLPROTECT
   5–18% 局变化但净效应 ≤±0.09;调参在 100 局配对下的分辨率约 ±0.2 名次,
   小于全部候选值的真实效应。
+
+## 循环后追加:轮 8(等效)——N1/N2/D4 出口对齐标签测量口径,采纳
+
+**overall 0.742 → 0.774(strategy 0.36 → 0.50,D4 0.38 → 0.62),live 零改动**
+
+- **假设与依据**:TavernBench 文档与 labels meta 公开可查——N/D4 标签 = 选项在其截局中
+  **128 次 bot 续打**的 mean_place argmin(se≈0.05–0.2);而桥接仲裁用 LeeAgent 续打
+  ×24 次、salt=1000k+j 选项间不共享 RNG(非配对,SE≈0.35,大于相邻选项典型差距,
+  近平局全部落进选项序号决胜)。两个错配:口径(续打者)+ 方差(非配对)。
+- **A/B**(`scripts/strategy_ab.py`,70,144 次续打,两臂共享同一 salt 表):
+  lee 臂(仅配对+128)strategy 0.36→0.41、D4 +1 题(**+4 题**);bot 臂(全席 bot 续打)
+  strategy→0.50、D4→0.62(**再 +8 题**)。两臂互相一致仅 34/72——LeeAgent 续打不是
+  中性测量仪,是系统性带偏的测量仪;增益集中 N2(0.26→0.48)与 D4,与"中后期各策略
+  分歧最大"一致,N1(第 4 回合)两口径几乎无差。
+- **采纳改动**:`bench_bridge.py` N/D4 出口 = bot 续打 + 配对 salt(task_idx×10000+j)
+  + 128 reps + 无初筛(价值/配方初筛退役为 D2 专属,`recipe_unit` 留档)。全量重跑
+  30s(纯 bot 续打极快),N/D4 与 A/B 补丁逐位一致、其余与 0.742 冻结点逐位一致。
+- **live 保险**(`scripts/live_recheck.py`):seeds 1800–1899 与 freeze_bias_fresh 控制臂
+  **逐位复现**(4 强 71/100、均名 3.37)——bench 侧改动结构性不触 live,实测确认。
+- **残余差距 = 策略真实水平**:N2 0.48 vs TavernAgent 0.67、D4 0.62 vs 0.81;口径对齐
+  消掉"测量仪偏差"层,下一量级仍是 ⑦ 搜索/PPO。strategy 天花板 <1.0(标签自身噪声)。
