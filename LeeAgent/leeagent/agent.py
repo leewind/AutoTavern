@@ -47,6 +47,33 @@ COMP_ROLLOUT_MINBOARD = 1 # contact survey (dev 300-339, pre-outcome): min_board
                           # 0 with three); =1 gives 2-3 candidates in 32/34 and the
                           # heuristic pick is always rank[0] — pivot directions with
                           # one board minion are real options for the search
+LATE_SEARCH = True        # E1 phase-mixed agent (scripts/late_search_gate.py),
+                          # ADOPTED 2026-11-04: bot-continuation rollout
+                          # arbitration where E0 proved search beats the
+                          # heuristic scorer — late recruit turns (N2 analog)
+                          # and pending discover/choose decisions at any turn
+                          # (D4 analog) — while early turns stay purely
+                          # heuristic (N1: heuristic 0.690 vs best search
+                          # 0.517). The heuristic remains the nominator
+                          # (top-K); search only arbitrates. Gate: dev
+                          # -0.36 / holdout -0.47 / fresh 1900 -0.19, merged
+                          # 300 games -0.340 place, top4 68.7% -> 75.3%
+                          # (+6.7pp), sign 134/94 p=0.0096. ~35s/game.
+LATE_SEARCH_TURN = 8      # data-defined phase cut, not tuned: N1 spans turns
+                          # 4-7, N2 turns 8-12 (labels meta) — 8 is the smallest
+                          # N2 turn and above the largest N1 turn
+LATE_SEARCH_REPS = 48     # reseeds per candidate (cost knob, not tuned on
+                          # outcomes); salts shared across candidates
+LATE_SEARCH_TOPK = 4      # nominees per recruit decision from score_actions
+LATE_SEARCH_PENDING_MAX = 4   # pending scope: D4-shaped card picks only (the
+                              # bench discovers are 3-option). A smoke census
+                              # (seed 1800, pre-outcome) showed the raw pending
+                              # surface is 249 fires/game over just 10 distinct
+                              # option-sets, dominated by a 12-option repeatable
+                              # prompt firing 89x — out of E0's evidence scope.
+                              # Bigger prompts keep the heuristic pick.
+LATE_SEARCH_MEMO = True   # same (turn, options) pending -> same decision:
+                              # repeatable prompts must not re-search per fire
 
 _LGBM = None
 
@@ -61,16 +88,20 @@ def _value_model():
     return _LGBM or None
 
 
-def _play_out(g, seat: int, agent) -> int | None:
-    """One reseeded continuation: the seat plays the (direction-pinned) agent,
-    everyone else the engine bot — mirroring the bridge's rollout_unit,
-    including its rare illegal-bot-action drop (rep discarded)."""
+def _play_out(g, seat: int, agent=None) -> int | None:
+    """One reseeded continuation: the seat plays the given agent (pure bot
+    when None), everyone else the engine bot — mirroring the bridge's
+    rollout_unit, including its rare illegal-bot-action drop (rep
+    discarded)."""
     guard = 0
     try:
         while not g.is_over() and guard < 100000:
             for p in range(g.num_players):
                 if g.needs_action(p):
-                    g.step(p, agent.choose(g, p) if p == seat else g.bot_action(p))
+                    if p == seat and agent is not None:
+                        g.step(p, agent.choose(g, p))
+                    else:
+                        g.step(p, g.bot_action(p))
             guard += 1
     except ValueError:
         return None
@@ -117,6 +148,49 @@ def _comp_search(game, seat: int, view: dict, facts: dict, store, th):
     return best, info
 
 
+def _tb_engine():
+    """The tavernbench engine helpers (from_state/reseeded) — same Rust core
+    the live game runs on; path set up lazily so the default import graph
+    is unchanged."""
+    import sys as _sys
+    from pathlib import Path as _P
+    tb = _P(__file__).resolve().parents[2] / "tavernbench"
+    if str(tb) not in _sys.path:
+        _sys.path.insert(0, str(tb))
+    from tavernbench import engine as E
+    return E
+
+
+def _late_search(game, seat: int, cands: list, kind: str):
+    """E1 arbitration: bot-continuation rollouts over heuristic-nominated
+    candidate actions. The evaluator is deliberately the all-bot playout —
+    the only one that discriminated the N2/D4-style decisions (E0: bot arm
+    0.48/0.62 vs heuristic-forced 0.26/0.31); the heuristic stays the
+    nominator. Same reseeds for every candidate (paired). Returns the best
+    action (ties keep nomination order) or None to keep the heuristic pick."""
+    E = _tb_engine()
+    st = game.state_json()
+    means = {}
+    for a in cands:
+        pls = []
+        for j in range(LATE_SEARCH_REPS):
+            g2 = E.reseeded(E.from_state(st), j)
+            if a not in E.legal(g2, seat):
+                continue
+            g2.step(seat, a)
+            pl = _play_out(g2, seat)
+            if pl is not None:
+                pls.append(pl)
+        if pls:
+            means[a] = sum(pls) / len(pls)
+    info = {"kind": kind, "cands": list(cands),
+            "means": {a: round(m, 3) for a, m in means.items()}}
+    if not means:
+        return None, info
+    best = min(means, key=lambda a: (means[a], cands.index(a)))
+    return best, info
+
+
 class LeeAgent:
     def __init__(self, store: list, th: dict | None = None, use_nimble: bool = True,
                  base: str = NIMBLE_BASE):
@@ -133,11 +207,13 @@ class LeeAgent:
         self._turn_seen = -1
         self._retrieval = Retrieval()
         self._positioned = False
+        self._late_searched = False
         self._turn_actions: list[str] = []
         self._danger: float | None = None
         self._buy_hint: int | None = None
         self._no_upgrade = False
         self._comp: str | None = None
+        self._late_memo: dict = {}
 
     # -- one decision ------------------------------------------------------
     def choose(self, game, seat: int) -> int:
@@ -147,6 +223,21 @@ class LeeAgent:
 
         if facts["pending"]:
             act = policy.choose_pending(legal, view)
+            if LATE_SEARCH and 1 < len(legal) <= LATE_SEARCH_PENDING_MAX:
+                memo_key = (view["turn"], tuple(sorted(legal))) \
+                    if LATE_SEARCH_MEMO else None
+                if memo_key is not None and memo_key in self._late_memo:
+                    act = self._late_memo[memo_key]
+                    self.stats["late_memo_hits"] = \
+                        self.stats.get("late_memo_hits", 0) + 1
+                else:
+                    pick, info = _late_search(game, seat, list(legal), "pending")
+                    info["heuristic"] = act
+                    self.stats.setdefault("late_searches", []).append(info)
+                    if pick is not None:
+                        act = pick
+                    if memo_key is not None:
+                        self._late_memo[memo_key] = act
             self._turn_actions.append(f"pending:{taverngym.action_name(act)}")
             return act
 
@@ -169,6 +260,15 @@ class LeeAgent:
                                       comp=self._comp,
                                       no_upgrade=self._no_upgrade)
         best = scored[0]
+        if (LATE_SEARCH and not self._late_searched
+                and view["turn"] >= LATE_SEARCH_TURN and len(scored) > 1):
+            self._late_searched = True
+            cands = [a for _s, a, _l, _w in scored[:LATE_SEARCH_TOPK]]
+            pick, info = _late_search(game, seat, cands, "recruit")
+            info["heuristic"] = best[1]
+            self.stats.setdefault("late_searches", []).append(info)
+            if pick is not None and pick != best[1]:
+                best = next(r for r in scored if r[1] == pick)
         if best[2] == "end" and not self._positioned and facts["board_count"] >= 2:
             did = []
             if UNIVERSAL_POS:            # roadmap 4: rule-based, zero panel info
@@ -195,6 +295,7 @@ class LeeAgent:
             self.turn_log[-1]["actions"] = self._turn_actions
         self._turn_seen = view["turn"]
         self._positioned = False
+        self._late_searched = False
         self._turn_actions = []
         self._danger = self._scout(game, seat, facts)
         self._fresh = self._scout_fresh(view, facts)

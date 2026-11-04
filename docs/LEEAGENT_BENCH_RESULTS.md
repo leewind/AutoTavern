@@ -1,4 +1,4 @@
-# LeeAgent TavernBench 全量逐题结果(2026-11-04,commit 3461bff)
+# LeeAgent TavernBench 全量逐题结果(2026-11-04,commit cca7ca8)
 
 口径:`tavernbench.score`(全 368 题计分)。管线:引擎桥接(确定性)+ 标签口径 rollout(N1/N2/D4:全席 bot 续打、选项间配对 salt、128 reps、无初筛——2026-11-04 采纳,见 scripts/strategy_ab.py)+ D2 价值初筛 + 规则出口(deepseek,内容寻址缓存)。
 
@@ -7,13 +7,13 @@
 | strategy | 56 | 0.500 |
 | rules | 56 | 0.625 |
 | combat | 48 | 0.979 |
-| selection | 48 | 0.688 |
+| selection | 48 | 0.646 |
 | economy | 40 | 0.725 |
 | ordering | 40 | 0.950 |
 | positioning | 40 | 0.900 |
 | targets | 40 | 0.975 |
 
-**overall acc 0.774**(285/368)
+**overall acc 0.769**(283/368)
 
 | id | 类别 | 场景 | 我方答案 | 标签 | 对错 | 得分 |
 |---|---|---|---|---|---|---|
@@ -73,13 +73,13 @@
 | D1-005 | selection | D1 | `{"answer": 1}` | `1` | ✓ | 1.000 |
 | D1-006 | selection | D1 | `{"answer": 3}` | `0` | ✗ | 0.000 |
 | D1-007 | selection | D1 | `{"answer": 3}` | `3` | ✓ | 1.000 |
-| D2-000 | selection | D2 | `{"answer": 1}` | `0` | ✗ | 0.000 |
-| D2-001 | selection | D2 | `{"answer": 0}` | `0` | ✓ | 1.000 |
+| D2-000 | selection | D2 | `{"answer": 2}` | `0` | ✗ | 0.000 |
+| D2-001 | selection | D2 | `{"answer": 2}` | `0` | ✗ | 0.000 |
 | D2-002 | selection | D2 | `{"answer": 3}` | `3` | ✓ | 1.000 |
-| D2-003 | selection | D2 | `{"answer": 2}` | `1` | ✗ | 0.000 |
+| D2-003 | selection | D2 | `{"answer": 3}` | `1` | ✗ | 0.000 |
 | D2-004 | selection | D2 | `{"answer": 0}` | `0` | ✓ | 1.000 |
 | D2-005 | selection | D2 | `{"answer": 2}` | `3` | ✗ | 0.000 |
-| D2-006 | selection | D2 | `{"answer": 3}` | `3` | ✓ | 1.000 |
+| D2-006 | selection | D2 | `{"answer": 1}` | `3` | ✗ | 0.000 |
 | D2-007 | selection | D2 | `{"answer": 0}` | `1` | ✗ | 0.000 |
 | D3-000 | selection | D3 | `{"answer": 1}` | `0.1885` | ✓ | 1.000 |
 | D3-001 | selection | D3 | `{"answer": 1}` | `0.6006` | ✓ | 1.000 |
