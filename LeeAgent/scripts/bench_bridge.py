@@ -8,14 +8,18 @@ labels themselves were computed. Answer protocols:
                   (apply the option, simulate the next combat, pick the best)
   rollout tasks   D1 (hero), D2 (trinket): LeeAgent continuation, --rollouts
                   reps, value-prescreen top-2
-                  N1/N2/D4 (turn plans, discover): the LABEL measurement
-                  protocol (labels.jsonl meta: mean_place over 128 playouts
-                  of natural = bot games) -- every seat plays bot_action,
-                  salts paired across a task's options (same reseeds),
-                  --n-reps reps, no prescreen. Adopted 2026-11-04 after a
-                  paired A/B: bot口径 +12 net tasks over the frozen point vs
-                  +4 for pairing+reps alone (LeeAgent continuation is a
-                  biased meter, worst on N2/D4).
+                  N1/N2/D4 (turn plans, discover): each task answers with
+                  the DEPLOYED policy's own procedure at that phase (round
+                  11) -- cut before LATE_SEARCH_TURN: the policy scorer's
+                  argmax among the options (E0: 0.690 vs 0.517 for rollouts);
+                  D2: the deployed pending picker (trinket table); turn >=
+                  LATE_SEARCH_TURN and D4: the label measurement protocol
+                  (labels.jsonl meta: mean_place over 128 bot playouts;
+                  mirrors the deployed LATE_SEARCH arbitration) -- every
+                  seat plays bot_action, salts paired across a task's
+                  options, --n-reps reps, no prescreen. The rollout arm was
+                  adopted 2026-11-04 after a paired A/B: bot口径 +12 net
+                  tasks vs +4 for pairing+reps alone.
   rule tasks      no state (R1, R3-R7, E1, E2, E4, E5): left unanswered
 
     ../.venv/bin/python scripts/bench_bridge.py [--sims 512] [--rollouts 12]
@@ -168,6 +172,58 @@ def recipe_unit(args):
 
 
 # ---------- phase 2: one (task, option, rollout) unit ----------
+
+def deployed_unit(args):
+    """Deployed-mechanism outlets (round 11): answer a task with the deployed
+    policy's own decision procedure at that phase instead of rollouts.
+
+    nforced    N tasks cut before leeagent.agent.LATE_SEARCH_TURN: the policy
+               scorer's argmax among the offered options (the deployed early
+               decision; E0 measured 0.690 vs 0.517 for the rollout arm).
+    d2pending  D2 trinket picks: the deployed pending picker (choose_pending's
+               trinket table; 3/8 vs the rollout arbitrator's 2/8).
+
+    Returns the chosen option's action index, or None when the deployed pick
+    is undecidable (options not all in the scorer's ranking / natural action
+    outside the option set) -- those tasks fall through to the rollout arm.
+    """
+    rid, kind, state_str, seat, opts = args
+    from tavernbench import engine as E
+    from leeagent import gate
+    from leeagent import policy as P
+    from leeagent.config import thresholds
+    optset = {str(o) for o in opts}
+    g = E.from_state(state_str)
+    if kind == "d2pending":
+        a = gate.LeeAgent(S["store"], th=thresholds(), use_nimble=False)
+        a.reset()
+        a._turn_seen = -1
+        act = a.choose(g, seat)
+        return rid, int(act) if str(act) in optset else None
+
+    real = P.score_actions
+    box = {}
+
+    def spy(view, matched, legal, **kw):
+        out = real(view, matched, legal, **kw)
+        box["ranking"] = out
+        return out
+
+    P.score_actions = spy
+    try:
+        a = gate.LeeAgent(S["store"], th=thresholds(), use_nimble=False)
+        a.reset()
+        a._turn_seen = -1
+        natural = a.choose(g, seat)
+    finally:
+        P.score_actions = real
+    ranking = box.get("ranking") or []
+    by_action = {act: (i, sc) for i, (sc, act, _l, _w) in enumerate(ranking)}
+    if all(o in by_action for o in opts):
+        best = max(opts, key=lambda o: (-by_action[o][0], by_action[o][1]))
+        return rid, int(best)
+    return rid, int(natural) if str(natural) in optset else None
+
 
 def rollout_unit(args):
     rid, k, state_str, seat, first, salt, seat_bot = args
@@ -343,14 +399,41 @@ def main():
     # paired-salt schedule for the label-protocol scenarios: one stable task
     # index, shared across a task's options so every option faces the same
     # reseeds (identical to scripts/strategy_ab.py, which certified the arm)
+    # -- deployed-mechanism outlets (round 11) ----------------------------
+    # N tasks cut before the deployed late-phase boundary answer with the
+    # policy scorer (the deployed early decision); D2 answers with the
+    # deployed pending picker. Turn comes from the task's own state, never
+    # the labels. Undecidable tasks fall through to the rollout arm.
+    from leeagent.agent import LATE_SEARCH_TURN
+    dep_jobs = []
+    for rid, row in states.items():
+        sc = rid.split("-")[0]
+        if sc in ("N1", "N2"):
+            turn = json.loads(E.from_state(row["state"]).view(row["seat"]))["turn"]
+            if turn < LATE_SEARCH_TURN:
+                dep_jobs.append((rid, "nforced", row["state"], row["seat"],
+                                 [int(k) for k in row["map"]]))
+        elif sc == "D2":
+            dep_jobs.append((rid, "d2pending", row["state"], row.get("seat", 0),
+                             [int(k) for k in row["map"]]))
+    n_dep = 0
+    if dep_jobs:
+        with mp.Pool(96) as pool:
+            for rid, k in pool.imap_unordered(deployed_unit, dep_jobs):
+                if k is not None:
+                    answers[rid] = {"answer": states[rid]["map"][str(k)]}
+                    n_dep += 1
+        print(f"deployed outlets: {n_dep}/{len(dep_jobs)} answered "
+              f"(rest fall through to rollouts)", flush=True)
+
     pair_idx = {rid: i for i, rid in enumerate(
         sorted(r for r in states if r.split("-")[0] in ("N1", "N2", "D4")))}
     roll_jobs = []
     for rid, row in states.items():
         sc = rid.split("-")[0]
+        if rid in answers:                     # hero table / deployed outlet
+            continue
         if sc == "D1":
-            if rid in answers:                 # answered from the hero table
-                continue
             for k, alt in enumerate(row["states"]):
                 for j in range(a.rollouts):
                     roll_jobs.append((rid, k, alt, 0, None,
