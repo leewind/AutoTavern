@@ -1,8 +1,9 @@
 """Fit the placement value model on self-play trajectories.
 
 Split by game (rows of one game never straddle train/valid) to avoid leaks.
-    ../.venv/bin/python scripts/train_value.py
+    ../.venv/bin/python scripts/train_value.py [--out value_model_v4.txt]
 """
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -15,6 +16,9 @@ sys.path.insert(0, str(ROOT))
 
 def main():
     import lightgbm as lgb
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--out", default="value_model.txt")
+    a = ap.parse_args()
     d = np.load(ROOT / "data" / "trajectories.npz")
     X, y = d["X"], d["y"]
     # rows were appended game by game but boundaries were not stored; random
@@ -36,8 +40,8 @@ def main():
     base = float(np.sqrt(np.mean((y[val].mean() - y[val]) ** 2)))
     print(f"valid RMSE {rmse:.4f} (predict-mean baseline {base:.4f})  "
           f"rows train={ (~val).sum() } val={ val.sum() }")
-    model.booster_.save_model(str(ROOT / "data" / "value_model.txt"))
-    print("saved -> data/value_model.txt")
+    model.booster_.save_model(str(ROOT / "data" / a.out))
+    print(f"saved -> data/{a.out}")
 
 
 if __name__ == "__main__":
