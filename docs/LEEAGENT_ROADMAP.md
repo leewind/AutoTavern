@@ -5,8 +5,8 @@ commit `93ada62`):
 
 | 指标 | 数值 |
 | :--- | :--- |
-| 前四率 | **75.3%**(轮10 三集合并 300 局:dev/holdout/1900 配对门 ON 臂);bot 参照 59% |
-| 平均名次 | **3.150**(同上口径) |
+| 前四率 | **73.0%(官宣:全新段 2000–2099,100 局)**;三集门合并 75.3%(300 局);同段 bot 参照 49.0%(+24pp 同局对照) |
+| 平均名次 | **3.25**(官宣段);3.150(三集门合并口径) |
 | TavernBench(score.py 口径,确定性管道) | combat 0.98 / strategy 0.58 / selection 0.51 / rules 0.70 / **overall 0.785**(逐类见 [LEEAGENT_BENCH_RESULTS.md](LEEAGENT_BENCH_RESULTS.md);除 rules 外全部由部署机制作答,轮11) |
 | 单局成本 | ~35 秒(LATE_SEARCH 搜索;96 核可并行);bench 全量 14s |
 
