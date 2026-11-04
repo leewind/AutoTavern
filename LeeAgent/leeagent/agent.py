@@ -24,6 +24,29 @@ UNIVERSAL_POS = True      # roadmap 4: rule-based arrangement, no opponent info
                           # fires only when a rule binds — bare reshuffles ablated.
                           # Gate: dev -0.19 / holdout -0.34 / fresh 1700 -0.24,
                           # merged 300 games p~0.045, adopted 2026-11-04)
+COMP_ROLLOUT = False      # roadmap-7 search half: at the once-per-game comp
+                          # commit, arbitrate the top comp.rank() candidates by
+                          # paired reseeded rollouts (seat replayed by this same
+                          # policy with its direction pinned, opponents by the
+                          # engine bots — the exact future the live game faces)
+                          # instead of the heuristic argmax. Gate (2026-11-04,
+                          # runs/comp_rollout_gate.json): NO-ADOPT — contact
+                          # passed (54% of searched games flipped, first live
+                          # mechanism past the injection-surface wall) but the
+                          # overturned decisions carry no placement value:
+                          # dev +0.01/holdout +0.02 (p 0.46/0.85), median flip
+                          # margin 0.15 < the 48-rep SE 0.19, and flipped games
+                          # realize +0.02/+0.05. The comp direction is near-
+                          # equivalent across top-3 at this play level; search
+                          # value is bounded by the continuation policy's
+                          # ability to realize direction differences.
+COMP_ROLLOUT_REPS = 48    # reseeds per candidate, shared across candidates
+COMP_ROLLOUT_TOPK = 3     # candidates from comp.rank(min_board=COMP_ROLLOUT_MINBOARD)
+COMP_ROLLOUT_MINBOARD = 1 # contact survey (dev 300-339, pre-outcome): min_board=2
+                          # starves the candidate set (23/34 games single-candidate,
+                          # 0 with three); =1 gives 2-3 candidates in 32/34 and the
+                          # heuristic pick is always rank[0] — pivot directions with
+                          # one board minion are real options for the search
 
 _LGBM = None
 
@@ -36,6 +59,62 @@ def _value_model():
         p = Path(__file__).resolve().parents[1] / "data" / "value_model.txt"
         _LGBM = lgb.Booster(model_file=str(p)) if p.is_file() else False
     return _LGBM or None
+
+
+def _play_out(g, seat: int, agent) -> int | None:
+    """One reseeded continuation: the seat plays the (direction-pinned) agent,
+    everyone else the engine bot — mirroring the bridge's rollout_unit,
+    including its rare illegal-bot-action drop (rep discarded)."""
+    guard = 0
+    try:
+        while not g.is_over() and guard < 100000:
+            for p in range(g.num_players):
+                if g.needs_action(p):
+                    g.step(p, agent.choose(g, p) if p == seat else g.bot_action(p))
+            guard += 1
+    except ValueError:
+        return None
+    return int(list(g.placements())[seat]) if g.is_over() else None
+
+
+def _comp_search(game, seat: int, view: dict, facts: dict, store, th):
+    """COMP_ROLLOUT arbitration: snapshot the live game at the commit turn,
+    replay it COMP_ROLLOUT_REPS times per candidate tribe — the same reseeds
+    for every candidate (paired) — and return the best mean-placement tribe
+    (ties keep the heuristic order). None keeps the heuristic choice. The
+    continuation seat is this same policy with its direction pinned, so the
+    measurement target is E[placement | we keep playing like we play]."""
+    import sys as _sys
+    from pathlib import Path as _P
+    tb = _P(__file__).resolve().parents[2] / "tavernbench"
+    if str(tb) not in _sys.path:
+        _sys.path.insert(0, str(tb))
+    from tavernbench import engine as E
+
+    cands = comp_mod.rank(view, facts, min_board=COMP_ROLLOUT_MINBOARD,
+                          k=COMP_ROLLOUT_TOPK)
+    info = {"turn": facts["turn"], "candidates": cands}
+    if len(cands) < 2:
+        return None, info
+    st = game.state_json()
+    means = {}
+    for c in cands:
+        pls = []
+        for j in range(COMP_ROLLOUT_REPS):
+            g2 = E.reseeded(E.from_state(st), j)
+            a2 = LeeAgent(store, th=th, use_nimble=False)
+            a2._comp = c
+            a2._turn_seen = -1
+            pl = _play_out(g2, seat, a2)
+            if pl is not None:
+                pls.append(pl)
+        if pls:
+            means[c] = sum(pls) / len(pls)
+    info["means"] = {c: round(m, 3) for c, m in means.items()}
+    if not means:
+        return None, info
+    best = min(means, key=lambda c: (means[c], cands.index(c)))
+    return best, info
 
 
 class LeeAgent:
@@ -124,6 +203,13 @@ class LeeAgent:
             if VALUE_GATE else False
         if self._comp is None and facts["turn"] >= comp_mod.COMMIT_TURN:
             self._comp = comp_mod.decide(view, facts)
+            if self._comp is not None and COMP_ROLLOUT:
+                pick, info = _comp_search(game, seat, view, facts,
+                                          self.store, self.th)
+                info["heuristic"] = self._comp
+                self.stats.setdefault("comp_searches", []).append(info)
+                if pick:
+                    self._comp = pick
         if self.use_nimble and facts["turn"] >= 3:  # early turns: nothing to judge yet
             self._retrieval = retrieve(self.store, view, facts, self.th, base=self.base)
             self.stats["nimble_ms"] += self._retrieval.nimble_ms

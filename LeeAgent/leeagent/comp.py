@@ -150,6 +150,42 @@ def decide(view: dict, facts: dict) -> str | None:
     return None
 
 
+def rank(view: dict, facts: dict, min_board: int = 2, k: int = 3) -> list[str]:
+    """Top-k direction candidates by decide()'s own score, for the
+    COMP_ROLLOUT search. A deliberate near-copy of decide()'s scoring
+    (decide stays byte-stable); admits tribes with at least min_board
+    board minions (decide's own gate is COMMIT_MIN_BOARD), best first,
+    ties in TRIBES order. When decide() commits, its pick is rank(...)[0].
+    """
+    tribes = facts.get("tribes") or {}
+    if USE_RECIPES and recipe_table():
+        dens = _recipe_strength()
+        dmax = 1
+    else:
+        dens = engine_density()
+        dmax = max(dens.values()) or 1
+    hero_text = ((view["me"].get("hero") or {}).get("text") or "").lower()
+    if PAIR_ANCHOR:
+        owned = set()
+        for c in (view["me"].get("board") or []) + (view["me"].get("hand") or []):
+            cid = c.get("id") or ""
+            owned.add(cid[:-2] if cid.endswith("_G") else cid)
+        core_tribes = {t for cid, t in _pair_core_tribes().items() if cid in owned}
+    else:
+        core_tribes = set()
+    scored = []
+    for t in TRIBES:
+        s = W_AFFINITY * tribes.get(t, 0) + W_DENSITY * dens.get(t, 0.0) / dmax
+        if t.lower() in hero_text:
+            s += W_HERO
+        if PAIR_ANCHOR and t in core_tribes:
+            s += PAIR_ANCHOR
+        if tribes.get(t, 0) >= min_board:
+            scored.append((s, TRIBES.index(t), t))
+    scored.sort(key=lambda x: (-x[0], x[1]))
+    return [t for _, _, t in scored[:k]]
+
+
 def engine_text_bonus(card: dict) -> float:
     """Scaling-engine text value, valid only inside the committed tribe."""
     t = (card.get("text") or "").lower()
